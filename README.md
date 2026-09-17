@@ -21,9 +21,7 @@
 Income, expenses, transfers, budgets and dues —
 everything lives in a local SQLite database on your phone. Nothing is ever uploaded.
 
-[<img src="https://fdroid.gitlab.io/artwork/badge/get-it-on.png" alt="Get it on F-Droid" height="70">](https://f-droid.org/packages/com.codeshowoff.xpenc/)
 
-[**🌐 Website**](https://xpenc.in) · [**⬇️ Download APK**](https://github.com/CodeShowOff/XPENC/releases/latest) · [**🐛 Report a bug**](../../issues/new?template=bug_report.yml) · [**✨ Request a feature**](../../issues/new?template=feature_request.yml) · [**🏦 Add your bank**](../../issues/new?template=bank_support.yml)
 
 </div>
 
@@ -70,13 +68,7 @@ adversarial audit that hardened it — is in [structure.md](structure.md).
 
 ## Download
 
-### F-Droid — recommended
 
-[**f-droid.org/packages/com.codeshowoff.xpenc**](https://f-droid.org/packages/com.codeshowoff.xpenc/)
-
-You get automatic updates, and F-Droid builds the app **from this source tree
-themselves** — nobody has to trust a binary I uploaded. The right ABI is picked
-for your phone automatically.
 
 ### Direct APK
 
@@ -93,9 +85,7 @@ Every release ships `SHA256SUMS.txt` — verify your download. APKs are built,
 tested and gated by [GitHub Actions](.github/workflows/release.yml); the
 [release process](docs/RELEASING.md) is fully automated from a version tag.
 
-> **Switching between F-Droid and a direct APK?** They're signed with different
-> keys, so Android won't update one over the other. Migrate with
-> **Backup → export JSON**, uninstall, install from the new source, then restore.
+
 
 ## Privacy
 
