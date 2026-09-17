@@ -2,7 +2,6 @@
 
 Everything to paste into **Play Console → Grow → Store presence → Main store listing**.
 Character limits are Google's current ones: app name **30**, short description **80**,
-full description **4000** ([source](https://support.google.com/googleplay/android-developer/answer/9859152)).
 
 Play's metadata policy forbids ranking claims ("best", "#1", "top"), price/promo text,
 emoji or repeated punctuation in the app name, and ALL-CAPS words that aren't the brand.
@@ -89,7 +88,7 @@ First release on Google Play!
 | Field | Value |
 |---|---|
 | Email (required, shown publicly) | CodeShowOff@gmail.com |
-| Website | https://xpenc.in |
+| Website | https://github.com/CodeShowOff/XPENC |
 | Phone | optional — leave blank |
 | External marketing | opt out if unwanted |
 

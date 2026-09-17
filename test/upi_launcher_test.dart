@@ -26,7 +26,7 @@ void main() {
       final uri = UpiLauncher.buildUri(
         action: UpiAction.collect,
         payeeUpiId: 'me@okhdfcbank',
-        payeeName: 'Yash',
+        payeeName: 'CodeShowOff',
         amount: Money.fromRupees(250),
       );
 
@@ -42,11 +42,11 @@ void main() {
       final uri = UpiLauncher.buildUri(
         action: UpiAction.collect,
         payeeUpiId: 'me@okhdfcbank',
-        payeeName: 'Yash',
+        payeeName: 'CodeShowOff',
         amount: Money.fromRupees(100),
       );
       expect(uri.queryParameters['pa'], 'me@okhdfcbank');
-      expect(uri.queryParameters['pn'], 'Yash');
+      expect(uri.queryParameters['pn'], 'CodeShowOff');
     });
 
     test('percent-encodes a name with a space and a note with special '

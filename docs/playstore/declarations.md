@@ -7,7 +7,7 @@ One-line answers first, detail below where it matters.
 
 | Declaration | Answer |
 |---|---|
-| Privacy policy | `https://xpenc.in/privacy` |
+| Privacy policy | `https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md` |
 | App access | **All functionality is available without special access** |
 | Ads | **No, my app does not contain ads** |
 | Content ratings | see [content-rating.md](content-rating.md) |

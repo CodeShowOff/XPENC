@@ -115,7 +115,7 @@ void main() {
         'PhonePe Transaction ID\n'
         'Debited from\n'
         'T2608111606297137560 265\n'
-        'Yash\n'
+        'CodeShowOff\n'
         'UTR: 243197130234\n'
         'Powered by\n'
         'UPIAXIS BANK\n'
@@ -153,7 +153,7 @@ void main() {
         'T20.00\n'
         'Powered by\n'
         'Sent\n'
-        'yashpatil6161@pingpay\n'
+        'codeshowoff@pingpay\n'
         '228896402246\n'
         'AXIS BANK |LFI\n'
         'UNIFIED PAYMENTS INTERFACE\n'
@@ -185,7 +185,7 @@ void main() {
         'India)\n'
         'Khau\n'
         'Completed\n'
-        'To: Yash Sandip Patil\n'
+        'To: CodeShowOff Sandip Patil\n'
         'Google Pay parthmagadum1@okaxis\n'
         'From: SAMRUDDHI SUDHIR PATIL (Bank of\n'
         'CICAgLi4qpCOBA\n'
@@ -205,7 +205,7 @@ void main() {
               'to the bare "From Samruddhi Patil" header line');
       expect(p.merchant, 'Samruddhi Patil',
           reason: 'the same-line "From X" header must win over the VPA '
-              'sitting above "To: Yash Sandip Patil" (the account owner, '
+              'sitting above "To: CodeShowOff Sandip Patil" (the account owner, '
               'not the sender)');
       expect(p.reference, '126372525429');
     },

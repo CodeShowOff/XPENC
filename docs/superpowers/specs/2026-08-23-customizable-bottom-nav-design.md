@@ -6,7 +6,7 @@ Status: draft, pending approval
 ## Background
 
 GitHub #70: a user doesn't use the "Persons" tab and asked to launch
-Calendar from that slot instead. Yash (owner) replied on the issue:
+Calendar from that slot instead. CodeShowOff replied on the issue:
 "I'll add a customizable bottom nav where users can choose all nav buttons
 according to preference." This spec is that feature.
 

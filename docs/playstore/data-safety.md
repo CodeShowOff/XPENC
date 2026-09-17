@@ -26,7 +26,7 @@ Result on the store listing: **"No data collected · No data shared."**
 ## Privacy policy URL (required regardless)
 
 ```
-https://xpenc.in/privacy
+https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md
 ```
 
 Entered under **App content → Privacy policy**. The page must stay publicly reachable —

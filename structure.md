@@ -11,7 +11,7 @@
 | | |
 |---|---|
 | **Name** | **XPENC** — "Money, tracked honestly." |
-| **applicationId** | `com.codeshowoff.xpenc` *(was `com.yash.money_manager`)* |
+| **applicationId** | `com.codeshowoff.xpenc` |
 | **Developer** | CodeShowOff · GitHub [@CodeShowOff](https://github.com/CodeShowOff) · [in/CodeShowOff](https://www.linkedin.com/in/CodeShowOff/) |
 | **Mark** | White "X" on a near-black squircle. Two stadium bars crossed at right angles; the ascending bar is punched out of the descending one by a thin **transparent** seam, so the strokes stay legible at 48 dp instead of merging into a blob. |
 | **Palette** | Monochrome. Ink `#FFFFFF`, tile `#17171A → #000000`. True black, AMOLED-friendly, matches the default `mono` theme. |
@@ -295,7 +295,7 @@ Mechanism: a background worker (workmanager) runs a periodic budget/person-due c
 
 ### Constraint 1 — Play Store policy: ⏭️ ~~DEFERRED, not a blocker~~ → became the blocker (see STATUS above)
 
-**Decision (Yash, superseded):** message reading **stays in the app**. Play Store distribution is a later problem. Build now.
+**Decision (CodeShowOff, superseded):** message reading **stays in the app**. Play Store distribution is a later problem. Build now.
 
 *Recorded risk (came true in 1.1.0):* Google's restricted-permissions policy does not generally permit `READ_SMS` for expense tracking — and Play Protect enforces it on sideloaded APKs too.
 
@@ -365,7 +365,7 @@ Guardrails:
 During **account setup** the user picks their **bank from a list** and enters the **last 4 digits**. That pairing is what matches incoming messages to an account.
 
 - `bank → sender IDs` shipped as templates; `last4 → account` set by the user
-- **First template to build & test: India Post Payments Bank (IPPB)** — Yash's current bank SMS source
+- **First template to build & test: India Post Payments Bank (IPPB)** — CodeShowOff's current bank SMS source
 - Unknown sender → card still shows with raw text, and offers "map this sender to an account"
 
 ### Smart behaviour (beyond the basics)

@@ -5,7 +5,7 @@
 **Developer:** CodeShowOff (individual developer)
 **Contact:** feedback@codeshowoff.com
 
-This policy is published at <https://xpenc.in/privacy> and mirrored in the
+This policy is published at <https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md> and mirrored in the
 app's source repository at <https://github.com/CodeShowOff/XPENC/blob/master/PRIVACY.md>.
 
 ## The short version
@@ -87,7 +87,7 @@ children under 13, and it collects no data from anyone regardless of age.
 
 ## The website
 
-The download website <https://xpenc.in> is a static page hosted on
+The download website <https://github.com/CodeShowOff/XPENC> is a static page hosted on
 Vercel. It runs no analytics or trackers. Like any web host, Vercel may keep
 standard access logs (IP address, user agent) to operate the service — see
 [Vercel's privacy policy](https://vercel.com/legal/privacy-policy). The page
@@ -110,7 +110,7 @@ processing will remain fully on-device.
 
 ## Changes to this policy
 
-Updates are published at <https://xpenc.in/privacy> with a new
+Updates are published at <https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md> with a new
 effective date. Material changes will also be called out in the
 [changelog](https://github.com/CodeShowOff/XPENC/blob/master/CHANGELOG.md) and
 release notes.

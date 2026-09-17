@@ -17,9 +17,9 @@ release and how to upgrade safely.
 
 ## Quick links
 
-- Website: <https://xpenc.in>
+- Website: <https://github.com/CodeShowOff/XPENC>
 - Download the latest APKs: <https://github.com/CodeShowOff/XPENC/releases/latest>
-- Privacy policy: <https://xpenc.in/privacy>
+- Privacy policy: <https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md>
 - Report a bug or request a feature:
   <https://github.com/CodeShowOff/XPENC/issues/new/choose>
 - Full changelog: [CHANGELOG.md](https://github.com/CodeShowOff/XPENC/blob/master/CHANGELOG.md)

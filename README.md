@@ -15,11 +15,12 @@
 [![Platform](https://img.shields.io/badge/platform-Android%207.0%2B-3DDC84?logo=android&logoColor=white&labelColor=black)](https://github.com/CodeShowOff/XPENC/releases/latest)
 [![Downloads](https://img.shields.io/github/downloads/CodeShowOff/XPENC/total?color=white&labelColor=black)](https://github.com/CodeShowOff/XPENC/releases)
 [![PRs Welcome](https://img.shields.io/badge/PRs-welcome-34c77b?labelColor=black)](CONTRIBUTING.md)
-[![Sponsor](https://img.shields.io/badge/Sponsor-CodeShowOff-ea4aaa?logo=githubsponsors&logoColor=white&labelColor=black)](https://github.com/sponsors/CodeShowOff)
 
 **Offline-first personal finance for Android.**
 Income, expenses, transfers, budgets and dues —
 everything lives in a local SQLite database on your phone. Nothing is ever uploaded.
+
+*Originally created by [Yash Patil](https://github.com/PATILYASHH/XPENC). Maintained and continued by CodeShowOff.*
 
 
 
@@ -73,7 +74,7 @@ adversarial audit that hardened it — is in [structure.md](structure.md).
 ### Direct APK
 
 Or grab it from [**Releases**](https://github.com/CodeShowOff/XPENC/releases/latest)
-/ the [website](https://xpenc.in#download):
+/ the [website](https://github.com/CodeShowOff/XPENC#download):
 
 | Your phone | Asset |
 |---|---|
@@ -93,7 +94,7 @@ Everything is stored on-device in the app's private SQLite database. Since
 1.1.0 the app requests **no SMS permission at all** — the only runtime
 permission is notifications. No transaction or balance ever leaves the phone.
 **There is no server.**
-Full policy: [PRIVACY.md](PRIVACY.md) · live at [xpenc.in/privacy](https://xpenc.in/privacy).
+Full policy: [PRIVACY.md](PRIVACY.md) · live at [https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md](https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md).
 See [SECURITY.md](SECURITY.md) for the vulnerability disclosure policy.
 
 ## Tech stack

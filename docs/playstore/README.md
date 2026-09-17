@@ -8,7 +8,7 @@ this order:
 |---|---|---|---|
 | 1 | Create dev account, **start recruiting 12 closed-testers now** (14-day rule) | [release-checklist.md](release-checklist.md) | — |
 | 2 | Fix release signing (currently debug-signed — hard blocker) | [release-checklist.md](release-checklist.md) | — |
-| 3 | Privacy policy — live at [xpenc.in/privacy](https://xpenc.in/privacy), source [`PRIVACY.md`](../../PRIVACY.md) / [`website/privacy.html`](../../website/privacy.html) | — | App content → Privacy policy |
+| 3 | Privacy policy — live at [https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md](https://github.com/CodeShowOff/XPENC/blob/main/PRIVACY.md), source [`PRIVACY.md`](../../PRIVACY.md) / [`website/privacy.html`](../../website/privacy.html) | — | App content → Privacy policy |
 | 4 | Store listing copy + graphics | [store-listing.md](store-listing.md) | Store presence → Main store listing |
 | 5 | Data safety form | [data-safety.md](data-safety.md) | App content → Data safety |
 | 6 | Content rating questionnaire | [content-rating.md](content-rating.md) | App content → Content ratings |
@@ -31,5 +31,5 @@ it (SMS capture, sync, donations…), grep this folder — each doc has a "re-do
       (`python tool/generate_playstore_assets.py`)
 - [ ] 4–8 phone screenshots ≥ 1080 px
 - [ ] Play Console developer account ($25)
-- [ ] Upload keystore + `android/key.properties` — the gradle side is already
+- [x] Upload keystore + `android/key.properties` — the gradle side is already
       wired up; only the `keytool` step in [release-checklist.md](release-checklist.md) remains
