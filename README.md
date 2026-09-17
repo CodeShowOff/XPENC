@@ -200,24 +200,17 @@ Contributions are very welcome — the highest-impact one is
 - 🔒 [SECURITY.md](SECURITY.md) — private vulnerability reporting
 - 📦 [CHANGELOG.md](CHANGELOG.md) · [docs/RELEASING.md](docs/RELEASING.md) — SemVer, `v*` tags, automated releases
 
-## Sponsor
 
-XPENC is free, open source, and has no ads, no trackers and no paid tier — and
-it stays that way. If it keeps your money honest, you can fund the work:
-
-[![Sponsor XPENC](https://img.shields.io/badge/♥%20Sponsor-CodeShowOff-ea4aaa?style=for-the-badge&logo=githubsponsors&logoColor=white&labelColor=black)](https://github.com/sponsors/CodeShowOff)
-
-Not in a position to sponsor? A ⭐, a bug report, or
-[an SMS template for your bank](../../issues/new?template=bank_support.yml)
-helps just as much.
 
 ## Developer
 
-**CodeShowOff** — GitHub [@CodeShowOff](https://github.com/CodeShowOff) · LinkedIn [in/CodeShowOff](https://www.linkedin.com/in/CodeShowOff/)
+**Yash Patil (Original Creator)** — GitHub [@PATILYASHH](https://github.com/PATILYASHH)
+
+**CodeShowOff (Current Maintainer)** — GitHub [@CodeShowOff](https://github.com/CodeShowOff) · LinkedIn [in/CodeShowOff](https://www.linkedin.com/in/CodeShowOff/)
 
 ## License
 
-[MIT](LICENSE) © 2026 CodeShowOff
+[MIT](LICENSE) © 2026 Yash Patil & CodeShowOff
 
 <div align="center">
 <sub>If XPENC keeps your money honest, a ⭐ keeps the project alive.</sub>
