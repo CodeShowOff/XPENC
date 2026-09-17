@@ -1,0 +1,127 @@
+# Publishes the app.
+#
+# Push a tag like `v1.2.0` and this workflow will:
+#   1. check the tag matches the version in pubspec.yaml
+#   2. run the full test suite
+#   3. build release APKs (one per ABI)
+#   4. gate every APK through tool/verify_apk.sh (the libsqlite3.so check)
+#   5. publish a GitHub Release with stable asset names + SHA-256 checksums
+#
+# The website's download buttons point at
+#   .../releases/latest/download/xpenc-arm64-v8a.apk
+# so the asset names below must never change.
+
+name: Release APK
+
+on:
+  push:
+    tags: ["v*"]
+  workflow_dispatch:
+
+permissions:
+  contents: write
+
+jobs:
+  release:
+    name: Build, verify & publish
+    runs-on: ubuntu-latest
+    timeout-minutes: 45
+    steps:
+      - uses: actions/checkout@v5
+
+      - name: Verify tag matches pubspec version
+        if: github.ref_type == 'tag'
+        run: |
+          TAG="${GITHUB_REF_NAME#v}"
+          PUBSPEC="$(grep -E '^version:' pubspec.yaml | sed 's/version: *//' | cut -d'+' -f1 | tr -d '[:space:]')"
+          if [ "$TAG" != "$PUBSPEC" ]; then
+            echo "::error::Tag v$TAG does not match pubspec.yaml version $PUBSPEC."
+            echo "Bump pubspec.yaml (and AppInfo — test/branding_test.dart guards it) before tagging."
+            exit 1
+          fi
+
+      - name: Install sqlite3
+        run: sudo apt-get update && sudo apt-get install -y libsqlite3-dev
+
+      - uses: actions/setup-java@v4
+        with:
+          distribution: temurin
+          java-version: "17"
+
+      - uses: subosito/flutter-action@v2
+        with:
+          # Keep on its own line, single-quoted. The F-Droid build recipe reads
+          # this Flutter version with sed to build against the same toolchain as
+          # CI. Don't reformat this line.
+          flutter-version: '3.38.9'
+          cache: true
+
+      # Every release must be signed with the same permanent key so an
+      # install on top of a previous release is recognized as an update
+      # instead of a conflicting package (see docs/RELEASING.md). Without
+      # this, android/app/build.gradle.kts falls back to a fresh random
+      # debug key on every CI run.
+      - name: Configure release signing
+        run: |
+          echo "${{ secrets.ANDROID_KEYSTORE_BASE64 }}" | base64 -d > "$GITHUB_WORKSPACE/android/xpenc-release.jks"
+          cat > android/key.properties <<EOF
+          storePassword=${{ secrets.ANDROID_KEYSTORE_PASSWORD }}
+          keyPassword=${{ secrets.ANDROID_KEY_PASSWORD }}
+          keyAlias=${{ secrets.ANDROID_KEY_ALIAS }}
+          storeFile=$GITHUB_WORKSPACE/android/xpenc-release.jks
+          EOF
+
+      # `--enforce-lockfile` refuses to silently rewrite pubspec.lock if it's
+      # out of sync with pubspec.yaml — F-Droid's own reproducible build uses
+      # the same flag (see docs/fdroid/metadata-com.codeshowoff.xpenc.yml), so a
+      # drifted lock file must fail *here*, at tag time, not on their side
+      # after the tag is already out (GitHub #57).
+      - name: Pub get
+        run: flutter pub get --enforce-lockfile
+
+      - name: Analyze
+        run: flutter analyze
+
+      - name: Test
+        run: flutter test
+
+      - name: Build release APKs
+        run: flutter build apk --release --split-per-abi
+
+      - name: Rename to stable asset names
+        run: |
+          mkdir -p release
+          cp build/app/outputs/flutter-apk/app-arm64-v8a-release.apk   release/xpenc-arm64-v8a.apk
+          cp build/app/outputs/flutter-apk/app-armeabi-v7a-release.apk release/xpenc-armeabi-v7a.apk
+          cp build/app/outputs/flutter-apk/app-x86_64-release.apk      release/xpenc-x86_64.apk
+
+      - name: Verify APKs (libsqlite3.so gate)
+        run: |
+          for apk in release/*.apk; do
+            bash tool/verify_apk.sh "$apk"
+          done
+
+      - name: Checksums
+        working-directory: release
+        run: sha256sum *.apk > SHA256SUMS.txt && cat SHA256SUMS.txt
+
+      - name: Publish GitHub Release
+        uses: softprops/action-gh-release@v2
+        with:
+          files: |
+            release/xpenc-arm64-v8a.apk
+            release/xpenc-armeabi-v7a.apk
+            release/xpenc-x86_64.apk
+            release/SHA256SUMS.txt
+          generate_release_notes: true
+          body: |
+            **XPENC — Money, tracked honestly.**
+
+            | Your phone | Download |
+            |---|---|
+            | Most phones (2017+) | `xpenc-arm64-v8a.apk` |
+            | Older 32-bit phones | `xpenc-armeabi-v7a.apk` |
+            | Emulators | `xpenc-x86_64.apk` |
+
+            Verify your download against `SHA256SUMS.txt`.
+            Full history in [CHANGELOG.md](https://github.com/CodeShowOff/XPENC/blob/master/CHANGELOG.md).

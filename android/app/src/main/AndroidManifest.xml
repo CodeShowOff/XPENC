@@ -1,0 +1,157 @@
+<manifest xmlns:android="http://schemas.android.com/apk/res/android"
+    xmlns:tools="http://schemas.android.com/tools">
+    <!-- No SMS permissions — deliberately. READ_SMS made Google Play Protect
+         block direct APK installs (users had to pause protection to install),
+         so bank-SMS auto-capture is paused. The capture pipeline still exists
+         behind the MessageSource interface; do NOT re-add READ_SMS here without
+         re-testing sideload install on a Play-Protect-enabled device.
+         test/native_channel_test.dart fails the build if this returns. -->
+    <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
+    <!-- WorkManager (pulled in transitively by flutter_local_notifications)
+         declares this by default for network-constrained jobs. XPENC is
+         offline-first and never sets a network constraint on any scheduled
+         work, so strip it from the merged manifest (GitHub #27). -->
+    <uses-permission android:name="android.permission.ACCESS_NETWORK_STATE"
+        tools:node="remove"/>
+    <!-- Some plugin's Android library declares this transitively (nothing in
+         this app's own Dart code calls the network — url_launcher hands URLs
+         off to the browser, it doesn't fetch them). PRIVACY.md promises
+         release builds request no internet permission at all, and 1.4.2
+         shipped with this present (GitHub #59), so strip it explicitly. -->
+    <uses-permission android:name="android.permission.INTERNET"
+        tools:node="remove"/>
+    <uses-permission android:name="android.permission.RECEIVE_BOOT_COMPLETED"/>
+    <!-- Backups (see backup_service.dart) only ever touch files this app itself
+         wrote into the public Download/BACKUP XPENC folder via MediaStore, which
+         needs no runtime permission on Android 10+ (scoped storage already lets
+         an app manage its own MediaStore entries). These two are capped to old
+         SDKs on purpose — only pre-scoped-storage devices need them at all, and
+         declaring them unconditionally is exactly the kind of "why does a finance
+         app want this" flag Play review looks for. -->
+    <uses-permission android:name="android.permission.READ_EXTERNAL_STORAGE"
+        android:maxSdkVersion="32"/>
+    <uses-permission android:name="android.permission.WRITE_EXTERNAL_STORAGE"
+        android:maxSdkVersion="29"/>
+    <!-- Only for "Take photo" on a receipt (Add/Edit > receipt button >
+         image_picker's ImageSource.camera). Attaching from the gallery
+         still goes through file_picker above, needing no permission at
+         all; this exists only for the in-app camera shortcut.
+         android:required="false" on the feature declaration keeps the app
+         installable on a device with no camera (e.g. some tablets) — the
+         button just won't have anything to open there. -->
+    <uses-permission android:name="android.permission.CAMERA"/>
+    <uses-feature android:name="android.hardware.camera" android:required="false"/>
+    <uses-feature android:name="android.hardware.camera.any" android:required="false"/>
+    <!-- Only for "Pick from contacts" on the Add Person sheet
+         (edit_person_sheet.dart). The native picker itself is permissionless
+         and always returns a name; this is requested at runtime only when
+         the user taps that button, and only unlocks importing that
+         contact's phone number and photo too — a denial just leaves the
+         picker name-only, exactly as it behaved before this permission
+         existed. -->
+    <uses-permission android:name="android.permission.READ_CONTACTS"/>
+    <application
+        android:label="@string/app_name"
+        android:name="${applicationName}"
+        android:icon="@mipmap/ic_launcher"
+        android:roundIcon="@mipmap/ic_launcher_round">
+        <activity
+            android:name=".MainActivity"
+            android:exported="true"
+            android:launchMode="singleTop"
+            android:taskAffinity=""
+            android:theme="@style/LaunchTheme"
+            android:configChanges="orientation|keyboardHidden|keyboard|screenSize|smallestScreenSize|locale|layoutDirection|fontScale|screenLayout|density|uiMode"
+            android:hardwareAccelerated="true"
+            android:windowSoftInputMode="adjustResize">
+            <!-- Specifies an Android theme to apply to this Activity as soon as
+                 the Android process has started. This theme is visible to the user
+                 while the Flutter UI initializes. After that, this theme continues
+                 to determine the Window background behind the Flutter UI. -->
+            <meta-data
+              android:name="io.flutter.embedding.android.NormalTheme"
+              android:resource="@style/NormalTheme"
+              />
+            <intent-filter>
+                <action android:name="android.intent.action.MAIN"/>
+                <category android:name="android.intent.category.LAUNCHER"/>
+            </intent-filter>
+            <!-- Lets the home_widget plugin route a widget tap back into the
+                 app — see BalanceWidgetProvider and home_widget_service.dart. -->
+            <intent-filter>
+                <action android:name="es.antonborri.home_widget.action.LAUNCH"/>
+            </intent-filter>
+            <!-- Puts XPENC in the system Share sheet for plain text (a bank
+                 SMS, see share_intake.dart and GitHub #26) and for images (a
+                 PhonePe/GPay/Paytm "payment successful" screenshot, OCR'd
+                 on-device with Tesseract — see message_capture/ocr_service.dart,
+                 parser/screenshot_parser.dart and GitHub #25/#57). Both needing
+                 no extra Android permission. Two <data> tags in one filter,
+                 not two filters: Android unions them, matching either mime
+                 type. -->
+            <intent-filter>
+                <action android:name="android.intent.action.SEND"/>
+                <category android:name="android.intent.category.DEFAULT"/>
+                <data android:mimeType="text/plain"/>
+                <data android:mimeType="image/*"/>
+            </intent-filter>
+        </activity>
+
+        <!-- The home-screen Balance widget. -->
+        <receiver android:name=".BalanceWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/balance_widget_info"/>
+        </receiver>
+
+        <!-- The home-screen Budgets widget. -->
+        <receiver android:name=".BudgetWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/budget_widget_info"/>
+        </receiver>
+
+        <!-- The home-screen Quick Add widget. -->
+        <receiver android:name=".QuickAddWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/quick_add_widget_info"/>
+        </receiver>
+
+        <!-- The home-screen This Month widget. -->
+        <receiver android:name=".MonthSummaryWidgetProvider"
+            android:exported="true">
+            <intent-filter>
+                <action android:name="android.appwidget.action.APPWIDGET_UPDATE"/>
+            </intent-filter>
+            <meta-data android:name="android.appwidget.provider"
+                android:resource="@xml/month_summary_widget_info"/>
+        </receiver>
+
+        <!-- Don't delete the meta-data below.
+             This is used by the Flutter tool to generate GeneratedPluginRegistrant.java -->
+        <meta-data
+            android:name="flutterEmbedding"
+            android:value="2" />
+    </application>
+    <!-- Required to query activities that can process text, see:
+         https://developer.android.com/training/package-visibility and
+         https://developer.android.com/reference/android/content/Intent#ACTION_PROCESS_TEXT.
+
+         In particular, this is used by the Flutter engine in io.flutter.plugin.text.ProcessTextPlugin. -->
+    <queries>
+        <intent>
+            <action android:name="android.intent.action.PROCESS_TEXT"/>
+            <data android:mimeType="text/plain"/>
+        </intent>
+    </queries>
+</manifest>

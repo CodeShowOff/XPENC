@@ -1,0 +1,340 @@
+import 'package:flutter/material.dart';
+import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:go_router/go_router.dart';
+
+import '../../core/branding/app_info.dart';
+import '../../core/money.dart';
+import '../../core/theme/app_colors.dart';
+import '../../data/providers.dart';
+import '../../data/tables.dart' show MoreScreenViewMode;
+
+/// Hub page. Grouped, not a flat dump. Every tile navigates to a real route.
+class MoreScreen extends ConsumerWidget {
+  const MoreScreen({super.key});
+
+  @override
+  Widget build(BuildContext context, WidgetRef ref) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    // ── Live badges ──────────────────────────────────────────────────────────
+    final rtaEnabled = ref.watch(rtaEnabledProvider);
+    final progress = ref.watch(budgetProgressProvider);
+    final overCount = progress.where((p) => p.overspent).length;
+    final budgetSubtitle = overCount > 0
+        ? '$overCount over budget'
+        : '${progress.length} active';
+    final budgetSubtitleColor = overCount > 0
+        ? AppColors.expense
+        : cs.onSurfaceVariant;
+
+    final netWorth =
+        ref.watch(netWorthProvider).valueOrNull ?? const Money.zero();
+
+    final rules = ref.watch(recurringRulesProvider).valueOrNull ?? const [];
+    final activeRuleCount = rules.where((r) => r.isActive).length;
+    final autoSubtitle = activeRuleCount == 0
+        ? 'Automate a fixed expense or income'
+        : '$activeRuleCount active';
+
+    final groups = <_Group>[
+      _Group('Money', [
+        _Item(
+          Icons.account_balance_wallet_outlined,
+          'Accounts',
+          route: '/more/accounts',
+          subtitle: 'Total money: ${MoneyFormat.compact(netWorth)}',
+        ),
+        _Item(
+          Icons.receipt_long_outlined,
+          'Transactions',
+          route: '/more/transactions',
+          subtitle: 'Every transaction, searchable and filterable',
+        ),
+        _Item(
+          Icons.people_alt_outlined,
+          'Persons',
+          route: '/more/persons',
+          subtitle: 'Who owes you, who you owe',
+        ),
+        _Item(
+          Icons.donut_large_rounded,
+          'Budgets',
+          route: '/more/budgets',
+          subtitle: budgetSubtitle,
+          subtitleColor: budgetSubtitleColor,
+        ),
+        if (rtaEnabled)
+          _Item(
+            Icons.savings_outlined,
+            'Ready to Assign',
+            route: '/more/ready-to-assign',
+            subtitle:
+                '${MoneyFormat.compact(ref.watch(readyToAssignProvider))} '
+                'unassigned',
+          ),
+        _Item(
+          Icons.autorenew_rounded,
+          'Auto',
+          route: '/more/auto',
+          subtitle: autoSubtitle,
+        ),
+        _Item(
+          Icons.storefront_outlined,
+          'Payees',
+          route: '/more/payees',
+          subtitle: 'Who you pay, and how much',
+        ),
+        _Item(
+          Icons.savings_outlined,
+          'Goals & Loans',
+          route: '/more/goals',
+          subtitle: 'Savings goals and loans in one place',
+        ),
+        _Item(
+          Icons.checklist_outlined,
+          'Shopping List',
+          route: '/more/shopping',
+          subtitle: 'Plan what to buy',
+        ),
+      ]),
+      _Group('Insights', [
+        _Item(
+          Icons.calendar_month_outlined,
+          'Calendar & Reminders',
+          route: '/more/calendar',
+          subtitle: 'Day-wise in/out · planned payments',
+        ),
+        _Item(
+          Icons.insights_outlined,
+          'Stats',
+          route: '/more/stats',
+          subtitle: 'Trends and deeper analytics',
+        ),
+        _Item(
+          Icons.account_balance_outlined,
+          'Account Reports',
+          route: '/more/account-reports',
+          subtitle: 'Per-account breakdown',
+        ),
+      ]),
+      _Group('Data', [
+        _Item(
+          Icons.download_outlined,
+          'Download Data',
+          route: '/more/export',
+          subtitle: 'Export CSV / JSON',
+        ),
+        _Item(
+          Icons.backup_outlined,
+          'Backup & Restore',
+          route: '/more/backup',
+          subtitle: 'Back up, import & move to a new phone',
+        ),
+      ]),
+      _Group('Setup', [
+        _Item(
+          Icons.category_outlined,
+          'Categories',
+          route: '/more/categories',
+          subtitle: 'Income & expense categories',
+        ),
+        _Item(
+          Icons.sell_outlined,
+          'Tags',
+          route: '/more/tags',
+          subtitle: 'Label transactions, cutting across category',
+        ),
+        _Item(
+          Icons.sms_outlined,
+          'Message Capture',
+          route: '/more/capture',
+          subtitle: 'Auto-capture — coming soon',
+        ),
+        _Item(
+          Icons.settings_outlined,
+          'Settings',
+          route: '/more/settings',
+          subtitle: 'Currency · theme · notifications',
+        ),
+        _Item(
+          Icons.dashboard_customize_outlined,
+          'Customize bottom nav',
+          route: '/more/bottom-nav',
+          subtitle: 'Choose what goes next to the ➕ button',
+        ),
+
+        _Item(
+          Icons.info_outline_rounded,
+          'About ${AppInfo.name}',
+          route: '/more/about',
+          subtitle: 'Version ${AppInfo.version} · ${AppInfo.developer}',
+        ),
+      ]),
+    ];
+
+    final viewMode = ref.watch(moreScreenViewModeProvider);
+    final isCards = viewMode == MoreScreenViewMode.cards;
+
+    return Scaffold(
+      body: CustomScrollView(
+        slivers: [
+          const SliverToBoxAdapter(child: SizedBox(height: 8)),
+          for (final group in groups) ...[
+            SliverToBoxAdapter(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(24, 16, 24, 10),
+                child: Text(
+                  group.title.toUpperCase(),
+                  style: theme.textTheme.labelSmall?.copyWith(
+                    color: cs.onSurfaceVariant,
+                    fontWeight: FontWeight.w700,
+                    letterSpacing: 1.1,
+                  ),
+                ),
+              ),
+            ),
+            if (isCards)
+              SliverPadding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                sliver: SliverGrid(
+                  gridDelegate:
+                      const SliverGridDelegateWithFixedCrossAxisCount(
+                        crossAxisCount: 2,
+                        mainAxisSpacing: 12,
+                        crossAxisSpacing: 12,
+                        childAspectRatio: 1.35,
+                      ),
+                  delegate: SliverChildBuilderDelegate(
+                    (context, i) => _MoreCard(item: group.items[i]),
+                    childCount: group.items.length,
+                  ),
+                ),
+              )
+            else
+              SliverToBoxAdapter(
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(horizontal: 20),
+                  child: Card(
+                    child: Column(
+                      children: [
+                        for (var i = 0; i < group.items.length; i++) ...[
+                          if (i > 0)
+                            Divider(height: 1, indent: 60, color: cs.outline),
+                          _MoreTile(item: group.items[i]),
+                        ],
+                      ],
+                    ),
+                  ),
+                ),
+              ),
+          ],
+          const SliverToBoxAdapter(child: SizedBox(height: 32)),
+        ],
+      ),
+    );
+  }
+}
+
+/// A single hub row. Navigates to [_Item.route].
+class _MoreTile extends StatelessWidget {
+  const _MoreTile({required this.item});
+
+  final _Item item;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return ListTile(
+      contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+      leading: Icon(item.icon),
+      title: Text(
+        item.label,
+        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+      ),
+      subtitle: Text(
+        item.subtitle,
+        style: theme.textTheme.bodySmall?.copyWith(
+          color: item.subtitleColor ?? cs.onSurfaceVariant,
+        ),
+      ),
+      trailing: const Icon(Icons.chevron_right_rounded),
+      onTap: () => context.push(item.route),
+    );
+  }
+}
+
+/// A single hub card — two per row, see [MoreScreen]. Same destination and
+/// content as [_MoreTile], just laid out for a grid instead of a list row.
+class _MoreCard extends StatelessWidget {
+  const _MoreCard({required this.item});
+
+  final _Item item;
+
+  @override
+  Widget build(BuildContext context) {
+    final theme = Theme.of(context);
+    final cs = theme.colorScheme;
+
+    return Card(
+      margin: EdgeInsets.zero,
+      child: InkWell(
+        borderRadius: BorderRadius.circular(16),
+        onTap: () => context.push(item.route),
+        child: Padding(
+          padding: const EdgeInsets.all(16),
+          child: Column(
+            crossAxisAlignment: CrossAxisAlignment.start,
+            children: [
+              Icon(item.icon, color: cs.primary),
+              const Spacer(),
+              Text(
+                item.label,
+                maxLines: 1,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodyLarge?.copyWith(
+                  fontWeight: FontWeight.w600,
+                ),
+              ),
+              const SizedBox(height: 2),
+              Text(
+                item.subtitle,
+                maxLines: 2,
+                overflow: TextOverflow.ellipsis,
+                style: theme.textTheme.bodySmall?.copyWith(
+                  color: item.subtitleColor ?? cs.onSurfaceVariant,
+                ),
+              ),
+            ],
+          ),
+        ),
+      ),
+    );
+  }
+}
+
+class _Group {
+  const _Group(this.title, this.items);
+  final String title;
+  final List<_Item> items;
+}
+
+class _Item {
+  const _Item(
+    this.icon,
+    this.label, {
+    required this.route,
+    required this.subtitle,
+    this.subtitleColor,
+  });
+
+  final IconData icon;
+  final String label;
+
+  /// Destination route pushed when the tile is tapped.
+  final String route;
+  final String subtitle;
+  final Color? subtitleColor;
+}

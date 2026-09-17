@@ -1,0 +1,124 @@
+# XPENC Privacy Policy
+
+**Effective date:** 16 September 2026
+**Applies to:** XPENC for Android (package name `com.codeshowoff.xpenc`), version 1.1.0 and later
+**Developer:** CodeShowOff (individual developer)
+**Contact:** feedback@codeshowoff.com
+
+This policy is published at <https://xpenc.in/privacy> and mirrored in the
+app's source repository at <https://github.com/CodeShowOff/XPENC/blob/master/PRIVACY.md>.
+
+## The short version
+
+XPENC stores everything on your phone and nothing anywhere else. The app has
+**no server, no user accounts, no analytics, no crash reporting, no ads, and no
+third-party SDKs that collect data**. Release builds do not request the
+`INTERNET` permission, so the app is technically incapable of transmitting your
+data anywhere.
+
+## Data the app stores — on your device only
+
+When you use XPENC you create financial records:
+
+- accounts and their balances (cash, bank, cards)
+- transactions (income, expenses, transfers) with amounts, dates, categories and notes
+- budgets and budget alerts
+- persons and dues/loans you record against them
+- reminders and calendar entries
+- app settings
+
+All of this is stored in a private SQLite database inside the app's private
+storage area, which Android sandboxes from other apps. It is **never
+transmitted** to the developer or to any third party. The developer has no way
+to see, access, or recover it.
+
+## Data the app collects or shares
+
+**Nothing beyond what you put in yourself.** XPENC collects no device
+identifiers, no usage analytics, and no diagnostics, and nothing is ever
+shared with anyone or transmitted anywhere. The one thing that comes from
+outside the app: if you use "Pick from contacts" when adding a person and
+grant the `READ_CONTACTS` permission, that one contact's name, phone number
+and photo are copied into the app's own local storage — the same
+never-transmitted, on-device storage as everything else in this policy.
+
+## Permissions
+
+| Permission | Why the app requests it |
+|---|---|
+| `POST_NOTIFICATIONS` (optional, asked at runtime) | To show budget alerts and the bill/EMI reminders you set. If you deny it, the app works normally — you just get no notifications. |
+| `RECEIVE_BOOT_COMPLETED` | To re-schedule your local reminders after the phone restarts. |
+| `CAMERA` (optional, asked at runtime) | Only if you tap "Take photo" when attaching a receipt to a transaction. The photo is copied straight into the app's own private storage and never leaves the device. If you deny it, or just attach from your gallery instead, the app works normally — nothing about the camera is used anywhere else. |
+| `READ_CONTACTS` (optional, asked at runtime) | Only if you tap "Pick from contacts" when adding a person, and only to also import that contact's phone number and photo — picking a contact's name works without this permission. If you deny it, the picker still fills in the name; you can still type the phone number by hand. Nothing from your address book is read except the one contact you explicitly pick, and it's copied into the app's own private storage, never transmitted anywhere. |
+
+XPENC requests **no** SMS, location, microphone, storage, or
+internet permission. (The final app package also contains `VIBRATE` — a
+standard, install-time permission added by the notifications library so
+notifications can vibrate — and an internal Android-library permission scoped
+to the app itself. Neither gives access to any of your data.)
+
+## Backups and exports
+
+- **In-app backup/export (JSON and CSV):** these are created only when you tap
+  the button, and are handed to the Android share sheet — you choose where the
+  file goes (your files, your email, your cloud drive). Exported files contain
+  your financial records in readable form, so treat them as sensitive. The
+  developer never receives them.
+- **Android system backup:** like most Android apps, XPENC's data may be
+  included in your device's own backup (for example Google's device backup tied
+  to your Google account) if you have that enabled in Android settings. That
+  backup is operated by Android/Google under your device settings and Google's
+  privacy policy, not by XPENC.
+
+## Data retention and deletion
+
+Your data stays on your device until **you** remove it. You can:
+
+1. delete individual records inside the app,
+2. clear the app's data in Android settings (*Apps → XPENC → Storage → Clear data*), or
+3. uninstall the app — Android deletes the app's private storage with it.
+
+There is no server-side copy to delete, and no "account" to close.
+
+## Children
+
+XPENC is a personal finance tool intended for adults. It is not directed at
+children under 13, and it collects no data from anyone regardless of age.
+
+## The website
+
+The download website <https://xpenc.in> is a static page hosted on
+Vercel. It runs no analytics or trackers. Like any web host, Vercel may keep
+standard access logs (IP address, user agent) to operate the service — see
+[Vercel's privacy policy](https://vercel.com/legal/privacy-policy). The page
+loads fonts from Google Fonts and the latest release number from the GitHub
+API; those requests are made by your **browser when you visit the website**,
+never by the Android app.
+
+## Open source
+
+XPENC is open source under the MIT license. Every claim in this policy can be
+verified by reading the code: <https://github.com/CodeShowOff/XPENC>.
+
+## Future features: bank-message capture
+
+Version 1.0 offered on-device scanning of bank SMS to pre-fill transactions; it
+was removed in version 1.1.0 and the current app requests no SMS permission.
+If this feature returns, it will be announced in the release notes, this policy
+and the Play Store Data safety section will be updated **before** release, and
+processing will remain fully on-device.
+
+## Changes to this policy
+
+Updates are published at <https://xpenc.in/privacy> with a new
+effective date. Material changes will also be called out in the
+[changelog](https://github.com/CodeShowOff/XPENC/blob/master/CHANGELOG.md) and
+release notes.
+
+## Contact
+
+Questions or concerns about privacy:
+
+- Email: **feedback@codeshowoff.com**
+- Bug reports: [GitHub issues](https://github.com/CodeShowOff/XPENC/issues)
+- Security vulnerabilities: [private reporting](https://github.com/CodeShowOff/XPENC/security) — see [SECURITY.md](SECURITY.md)
