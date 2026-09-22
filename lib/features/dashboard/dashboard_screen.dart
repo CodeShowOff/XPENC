@@ -1296,8 +1296,11 @@ class _BudgetsSection extends ConsumerWidget {
             padding: const EdgeInsets.symmetric(horizontal: 20),
             child: Card(
               margin: EdgeInsets.zero,
+              shape: RoundedRectangleBorder(
+                borderRadius: BorderRadius.circular(_cardRadius),
+              ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(18, 20, 18, 18),
+                padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
                 child: BudgetRadialChart(
                   slices: [
                     for (final p in progress)
@@ -1341,16 +1344,21 @@ class _SetBudgetCard extends StatelessWidget {
     return PressScale(
       child: Card(
         margin: EdgeInsets.zero,
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_cardRadius),
+        ),
         child: InkWell(
           borderRadius: BorderRadius.circular(_cardRadius),
           onTap: () => context.push('/more/budgets'),
           child: Padding(
-            padding: const EdgeInsets.all(18),
-            child: Row(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: ConstrainedBox(
+              constraints: const BoxConstraints(minHeight: 58),
+              child: Row(
               children: [
                 Container(
-                  width: 40,
-                  height: 40,
+                  width: 46,
+                  height: 46,
                   alignment: Alignment.center,
                   decoration: BoxDecoration(
                     shape: BoxShape.circle,
@@ -1358,21 +1366,23 @@ class _SetBudgetCard extends StatelessWidget {
                   ),
                   child: Icon(
                     Icons.pie_chart_outline_rounded,
-                    size: 20,
+                    size: 24,
                     color: theme.colorScheme.secondary,
                   ),
                 ),
-                const SizedBox(width: 14),
+                const SizedBox(width: 16),
                 Expanded(
                   child: Column(
                     crossAxisAlignment: CrossAxisAlignment.start,
+                    mainAxisSize: MainAxisSize.min,
                     children: [
                       Text(
                         'Set a budget',
-                        style: theme.textTheme.bodyLarge?.copyWith(
+                        style: theme.textTheme.titleMedium?.copyWith(
                           fontWeight: FontWeight.w600,
                         ),
                       ),
+                      const SizedBox(height: 2),
                       Text(
                         'Cap a category and watch it fill',
                         style: theme.textTheme.bodySmall?.copyWith(
@@ -1389,6 +1399,7 @@ class _SetBudgetCard extends StatelessWidget {
               ],
             ),
           ),
+        ),
         ),
       ),
     );
@@ -1526,6 +1537,9 @@ class _RecentSection extends ConsumerWidget {
                 child: Card(
                   margin: EdgeInsets.zero,
                   clipBehavior: Clip.antiAlias,
+                  shape: RoundedRectangleBorder(
+                    borderRadius: BorderRadius.circular(_cardRadius),
+                  ),
                   child: Column(
                     children: [
                       for (var i = 0; i < top.length; i++) ...[
@@ -1609,40 +1623,59 @@ class _TxRow extends StatelessWidget {
     final subtitle =
         '${account?.name ?? 'Account'} · ${DateFormat('d MMM').format(tx.date)}';
 
-    return ListTile(
+    return InkWell(
       onTap: () => context.push('/transaction/${tx.id}'),
-      shape: const RoundedRectangleBorder(),
-      contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),
-      leading: Container(
-        width: 40,
-        height: 40,
-        alignment: Alignment.center,
-        decoration: BoxDecoration(
-          shape: BoxShape.circle,
-          color: iconColor.withValues(alpha: 0.14),
-        ),
-        child: transactionRowIcon(
-          customIcon: tx.customIcon,
-          fallback: icon,
-          size: 20,
-          color: iconColor,
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+        child: ConstrainedBox(
+          constraints: const BoxConstraints(minHeight: 58),
+          child: Row(
+            children: [
+              Container(
+                width: 46,
+                height: 46,
+                alignment: Alignment.center,
+                decoration: BoxDecoration(
+                  shape: BoxShape.circle,
+                  color: iconColor.withValues(alpha: 0.14),
+                ),
+                child: transactionRowIcon(
+                  customIcon: tx.customIcon,
+                  fallback: icon,
+                  size: 24,
+                  color: iconColor,
+                ),
+              ),
+              const SizedBox(width: 16),
+              Expanded(
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  crossAxisAlignment: CrossAxisAlignment.start,
+                  children: [
+                    Text(
+                      title,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.titleMedium?.copyWith(fontWeight: FontWeight.w600),
+                    ),
+                    const SizedBox(height: 2),
+                    Text(
+                      subtitle,
+                      maxLines: 1,
+                      overflow: TextOverflow.ellipsis,
+                      style: theme.textTheme.bodySmall?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
+              ),
+              const SizedBox(width: 16),
+              _amount(theme),
+            ],
+          ),
         ),
       ),
-      title: Text(
-        title,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w600),
-      ),
-      subtitle: Text(
-        subtitle,
-        maxLines: 1,
-        overflow: TextOverflow.ellipsis,
-        style: theme.textTheme.bodySmall?.copyWith(
-          color: theme.colorScheme.onSurfaceVariant,
-        ),
-      ),
-      trailing: _amount(theme),
     );
   }
 
@@ -1695,8 +1728,11 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
+      shape: RoundedRectangleBorder(
+        borderRadius: BorderRadius.circular(_cardRadius),
+      ),
       child: Padding(
-        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
         child: Column(
           children: [
             Container(

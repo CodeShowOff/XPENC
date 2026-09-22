@@ -64,6 +64,13 @@ class AboutScreen extends StatelessWidget {
               children: [
                 _LinkTile(
                   icon: Icons.code_rounded,
+                  label: 'Yash Patil',
+                  value: 'Original Developer',
+                  url: 'https://github.com/PATILYASHH/XPENC',
+                ),
+                Divider(height: 1, indent: 60, color: cs.outline),
+                _LinkTile(
+                  icon: Icons.code_rounded,
                   label: AppInfo.developer,
                   value: AppInfo.developerRole,
                   url: AppInfo.githubUrl,
@@ -112,6 +119,13 @@ class AboutScreen extends StatelessWidget {
                   ),
                   Divider(height: 1, indent: 60, color: cs.outline),
                 ],
+                _LinkTile(
+                  icon: Icons.code_rounded,
+                  label: 'Original source code',
+                  value: 'PATILYASHH/XPENC',
+                  url: 'https://github.com/PATILYASHH/XPENC',
+                ),
+                Divider(height: 1, indent: 60, color: cs.outline),
                 _LinkTile(
                   icon: Icons.code_rounded,
                   label: 'Source code',
