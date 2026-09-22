@@ -256,35 +256,9 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(_cardRadius),
         ),
-        child: DecoratedBox(
-          // Bold's signature wash is fixed — a deep, moody gradient that
-          // marks the card as *this* theme regardless of which metric tab is
-          // selected. Every other theme keeps the tint-following-direction
-          // wash so the card still reads as "the ledger moved this way".
-          decoration: BoxDecoration(
-            gradient: isBold
-                ? const LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      Color(0xFF2A1220),
-                      Color(0xFF1B1118),
-                      Color(0xFF17131C),
-                    ],
-                    stops: [0.0, 0.55, 1.0],
-                  )
-                : LinearGradient(
-                    begin: Alignment.topLeft,
-                    end: Alignment.bottomRight,
-                    colors: [
-                      tint.withValues(alpha: 0.07),
-                      tint.withValues(alpha: 0.0),
-                    ],
-                  ),
-          ),
-          child: Column(
-            crossAxisAlignment: CrossAxisAlignment.start,
-            children: [
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
               Padding(
                 padding: const EdgeInsets.fromLTRB(24, 22, 24, 0),
                 child: Column(
@@ -341,7 +315,6 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
             ],
           ),
         ),
-      ),
     );
   }
 }

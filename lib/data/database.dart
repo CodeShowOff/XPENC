@@ -2534,7 +2534,8 @@ class AppDatabase extends _$AppDatabase {
     if (await countEntriesForPerson(personId) == 0) return;
     final balance = await _personBalance(personId);
     if (!balance.isZero) return;
-    await archivePerson(personId);
+    // Auto-archive disabled: keep person until user manually archives
+    // await archivePerson(personId);
 
     final memberships = await (select(
       groupMembers,
@@ -2561,7 +2562,8 @@ class AppDatabase extends _$AppDatabase {
       total += await _personBalance(member.personId);
     }
     if (!total.isZero) return;
-    await archiveGroup(groupId);
+    // Auto-archive disabled: keep group until user manually archives
+    // await archiveGroup(groupId);
   }
 
   Future<Money> _personBalance(int personId) async {

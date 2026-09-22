@@ -191,7 +191,7 @@ class _IndividualTab extends ConsumerWidget {
               return const SliverToBoxAdapter(child: _EmptyPersons());
             }
             // Dues/owes on top (largest first) — anyone still at zero here
-            // has no history yet (settled ones auto-archive), so they trail
+            // has no history yet (settled ones used to auto-archive), so they trail
             // at the bottom rather than mixing in with active balances.
             final sorted = [...persons]..sort((a, b) {
               final ba = balances[a.id] ?? const Money.zero();

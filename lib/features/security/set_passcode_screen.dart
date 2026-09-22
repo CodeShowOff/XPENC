@@ -151,7 +151,7 @@ class _SetPasscodeScreenState extends ConsumerState<SetPasscodeScreen> {
             const Spacer(flex: 2),
             Text(
               _title,
-              style: theme.textTheme.titleMedium?.copyWith(
+              style: theme.textTheme.headlineMedium?.copyWith(
                 fontWeight: FontWeight.w700,
               ),
             ),

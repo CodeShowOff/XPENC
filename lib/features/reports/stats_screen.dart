@@ -245,6 +245,7 @@ class _ThisMonthSection extends ConsumerWidget {
             ? AppColors.expense
             : cs.onSurfaceVariant;
         return Column(
+          crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
             Row(
               children: [

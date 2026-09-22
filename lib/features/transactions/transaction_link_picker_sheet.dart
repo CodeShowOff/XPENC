@@ -47,9 +47,13 @@ class _TransactionLinkPickerSheetState
       constraints: BoxConstraints(
         maxHeight: MediaQuery.of(context).size.height * 0.8,
       ),
-      child: SafeArea(
-        top: false,
-        child: Column(
+      child: Padding(
+        padding: EdgeInsets.only(
+          bottom: MediaQuery.of(context).viewInsets.bottom,
+        ),
+        child: SafeArea(
+          top: false,
+          child: Column(
           mainAxisSize: MainAxisSize.min,
           crossAxisAlignment: CrossAxisAlignment.stretch,
           children: [
@@ -122,6 +126,7 @@ class _TransactionLinkPickerSheetState
               ),
             ),
           ],
+        ),
         ),
       ),
     );

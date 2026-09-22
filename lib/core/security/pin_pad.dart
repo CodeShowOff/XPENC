@@ -91,25 +91,41 @@ class PinKeypad extends StatelessWidget {
     if (k.isEmpty) {
       return Padding(
         padding: const EdgeInsets.all(4),
-        child: SizedBox(height: 56, child: Center(child: extraKey)),
+        child: SizedBox(height: 64, child: Center(child: extraKey)),
       );
     }
     final theme = Theme.of(context);
     final isBackspace = k == '<';
     return Padding(
-      padding: const EdgeInsets.all(4),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => isBackspace ? onBackspace() : onDigit(k),
-        child: SizedBox(
-          height: 56,
-          child: Center(
-            child: isBackspace
-                ? Icon(
-                    Icons.backspace_outlined,
-                    color: theme.colorScheme.onSurface,
-                  )
-                : Text(k, style: theme.textTheme.headlineSmall),
+      padding: const EdgeInsets.all(6),
+      child: Material(
+        color: isBackspace
+            ? theme.colorScheme.primaryContainer
+            : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.5),
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(16),
+          side: BorderSide(
+            color: theme.colorScheme.outlineVariant.withValues(alpha: 0.5),
+          ),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(16),
+          onTap: () => isBackspace ? onBackspace() : onDigit(k),
+          child: SizedBox(
+            height: 64,
+            child: Center(
+              child: isBackspace
+                  ? Icon(
+                      Icons.backspace_outlined,
+                      color: theme.colorScheme.onPrimaryContainer,
+                    )
+                  : Text(
+                      k,
+                      style: theme.textTheme.headlineMedium?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
+                    ),
+            ),
           ),
         ),
       ),
