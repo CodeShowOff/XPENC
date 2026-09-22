@@ -454,6 +454,7 @@ const bottomNavCatalogLabels = <String, String>{
   'accounts': 'Accounts',
   'stats': 'Stats',
   'payees': 'Payees',
+  'shopping': 'Shopping',
 };
 
 class _TabSpec {
@@ -507,13 +508,7 @@ class _TopBar extends ConsumerWidget implements PreferredSizeWidget {
       ),
       child: AppBar(
         automaticallyImplyLeading: false,
-        title: Text(
-          _titles[currentIndex],
-          style: const TextStyle(
-            fontSize: 22,
-            fontWeight: FontWeight.bold,
-          ),
-        ),
+        title: Text(_titles[currentIndex]),
         actions: [
           Row(
             key: ValueKey(currentIndex),

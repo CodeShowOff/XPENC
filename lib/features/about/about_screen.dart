@@ -68,15 +68,7 @@ class AboutScreen extends StatelessWidget {
                   value: AppInfo.developerRole,
                   url: AppInfo.githubUrl,
                 ),
-                if (AppInfo.githubHandle.isNotEmpty) ...[
-                  Divider(height: 1, indent: 60, color: cs.outline),
-                  _LinkTile(
-                    icon: Icons.hub_outlined,
-                    label: 'GitHub',
-                    value: '@${AppInfo.githubHandle}',
-                    url: AppInfo.githubUrl,
-                  ),
-                ],
+
                 if (AppInfo.linkedinHandle.isNotEmpty) ...[
                   Divider(height: 1, indent: 60, color: cs.outline),
                   _LinkTile(
@@ -127,25 +119,59 @@ class AboutScreen extends StatelessWidget {
                   url: AppInfo.repoUrl,
                 ),
                 Divider(height: 1, indent: 60, color: cs.outline),
-                _LinkTile(
-                  icon: Icons.system_update_alt_rounded,
-                  label: 'Latest release',
-                  value: 'Changelogs & APKs',
-                  url: AppInfo.releasesUrl,
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: const Icon(Icons.system_update_alt_rounded),
+                  title: Text(
+                    'Latest release',
+                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(
+                    'Changelogs & APKs',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  onTap: () {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(const SnackBar(content: Text('Coming soon')));
+                  },
                 ),
                 Divider(height: 1, indent: 60, color: cs.outline),
-                _LinkTile(
-                  icon: Icons.bug_report_outlined,
-                  label: 'Report a bug',
-                  value: 'Issues & feature requests',
-                  url: AppInfo.issuesUrl,
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: const Icon(Icons.bug_report_outlined),
+                  title: Text(
+                    'Report a bug',
+                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(
+                    'Issues & feature requests',
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  onTap: () {
+                    ScaffoldMessenger.of(context)
+                      ..hideCurrentSnackBar()
+                      ..showSnackBar(const SnackBar(content: Text('Coming soon')));
+                  },
                 ),
                 Divider(height: 1, indent: 60, color: cs.outline),
-                _LinkTile(
-                  icon: Icons.gavel_rounded,
-                  label: 'License',
-                  value: AppInfo.licenseName,
-                  url: AppInfo.licenseUrl,
+                ListTile(
+                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
+                  leading: const Icon(Icons.gavel_rounded),
+                  title: Text(
+                    'License',
+                    style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
+                  ),
+                  subtitle: Text(
+                    AppInfo.licenseName,
+                    style: theme.textTheme.bodySmall?.copyWith(color: cs.onSurfaceVariant),
+                  ),
+                  onTap: () => showLicensePage(
+                    context: context,
+                    applicationName: AppInfo.name,
+                    applicationVersion: AppInfo.versionLabel,
+                    applicationLegalese: AppInfo.copyright.isNotEmpty ? AppInfo.copyright : null,
+                  ),
                 ),
                 if (AppInfo.feedbackEmail.isNotEmpty) ...[
                   Divider(height: 1, indent: 60, color: cs.outline),
@@ -171,15 +197,6 @@ class AboutScreen extends StatelessWidget {
             ),
             const SizedBox(height: 6),
           ],
-          Center(
-            child: Text(
-              'Offline-first',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: cs.onSurfaceVariant,
-                letterSpacing: 0.4,
-              ),
-            ),
-          ),
         ],
       ),
     );

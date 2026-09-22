@@ -50,8 +50,8 @@ class AmountVisibilityScope extends InheritedWidget {
   /// Defaults to visible (not hidden) when absent — bare widget tests, or
   /// any [MoneyText] rendered before the scope is mounted.
   static bool of(BuildContext context) {
-    final scope =
-        context.dependOnInheritedWidgetOfExactType<AmountVisibilityScope>();
+    final scope = context
+        .dependOnInheritedWidgetOfExactType<AmountVisibilityScope>();
     return scope?.hidden ?? false;
   }
 
@@ -90,11 +90,11 @@ class AmountVisibilityToggle extends ConsumerWidget {
 /// Colour only ever *means* something: money in is green, money out is red,
 /// a transfer is neither — and a person movement is neither either.
 Color colorForTxType(TxType type) => switch (type) {
-      TxType.income => AppColors.income,
-      TxType.expense => AppColors.expense,
-      TxType.transfer => AppColors.transfer,
-      TxType.personOut || TxType.personIn => AppColors.person,
-    };
+  TxType.income => AppColors.income,
+  TxType.expense => AppColors.expense,
+  TxType.transfer => AppColors.transfer,
+  TxType.personOut || TxType.personIn => AppColors.person,
+};
 
 /// The icon that stands for a transaction's kind, when there is no category.
 ///
@@ -103,22 +103,22 @@ Color colorForTxType(TxType type) => switch (type) {
 /// sign and by its title ("Gave to Asha"). The old `call_made`/`call_received`
 /// icons were telephone glyphs and said nothing about money at all.
 IconData iconForTxType(TxType type) => switch (type) {
-      TxType.transfer => Icons.swap_horiz_rounded,
-      TxType.personOut => Icons.person_outline_rounded,
-      TxType.personIn => Icons.person_outline_rounded,
-      TxType.income => Icons.south_west_rounded,
-      TxType.expense => Icons.north_east_rounded,
-    };
+  TxType.transfer => Icons.swap_horiz_rounded,
+  TxType.personOut => Icons.person_outline_rounded,
+  TxType.personIn => Icons.person_outline_rounded,
+  TxType.income => Icons.south_west_rounded,
+  TxType.expense => Icons.north_east_rounded,
+};
 
 /// What to call a transaction that has no category. [personName] names the
 /// counterparty when there is one — "Gave to Asha" beats "Gave to person".
 String labelForTxType(TxType type, {String? personName}) => switch (type) {
-      TxType.transfer => 'Transfer',
-      TxType.personOut => 'Gave to ${personName ?? 'person'}',
-      TxType.personIn => 'Received from ${personName ?? 'person'}',
-      TxType.income => 'Income',
-      TxType.expense => 'Expense',
-    };
+  TxType.transfer => 'Transfer',
+  TxType.personOut => 'Gave to ${personName ?? 'person'}',
+  TxType.personIn => 'Received from ${personName ?? 'person'}',
+  TxType.income => 'Income',
+  TxType.expense => 'Expense',
+};
 
 /// Renders an amount with tabular figures so columns line up.
 class MoneyText extends StatelessWidget {
@@ -161,15 +161,15 @@ class MoneyText extends StatelessWidget {
     final displayCurrency = currency ?? MoneyFormat.currency;
     final text = hidden
         ? (MoneyFormat.showSymbol
-            ? '${displayCurrency.symbol} $_maskGlyph'
-            : _maskGlyph)
+              ? '${displayCurrency.symbol} $_maskGlyph'
+              : _maskGlyph)
         : compact
-            ? MoneyFormat.compact(amount)
-            : signed
-                ? _signedIn(amount, currency)
-                : currency == null
-                    ? MoneyFormat.symbol(amount)
-                    : MoneyFormat.symbolIn(amount, currency!);
+        ? MoneyFormat.compact(amount)
+        : signed
+        ? _signedIn(amount, currency)
+        : currency == null
+        ? MoneyFormat.symbol(amount)
+        : MoneyFormat.symbolIn(amount, currency!);
 
     return Text(
       text,

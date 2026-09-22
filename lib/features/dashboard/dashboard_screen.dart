@@ -18,7 +18,6 @@ import '../budgets/ready_to_assign_screen.dart';
 
 import '../reports/chart_widgets.dart';
 
-
 /// The graphical glance view: net worth, this-month income vs expense,
 /// account balances, budgets, spend breakdown and recent activity.
 class DashboardScreen extends ConsumerWidget {
@@ -147,7 +146,6 @@ class _InlineError extends StatelessWidget {
     );
   }
 }
-
 
 // ── 1. Net worth ──────────────────────────────────────────────────────────
 
@@ -412,7 +410,9 @@ class _MoneyMetricChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: active
               ? color.withValues(alpha: 0.14)
-              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
+              : theme.colorScheme.surfaceContainerHighest.withValues(
+                  alpha: 0.4,
+                ),
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
@@ -812,68 +812,68 @@ class _AccountCard extends StatelessWidget {
 
     return PressScale(
       child: Card(
-          margin: EdgeInsets.zero,
-          // The account's own colour carries into its edge, so a row of cards
-          // reads as a row of *different* accounts at a glance.
-          shape: RoundedRectangleBorder(
-            borderRadius: BorderRadius.circular(_cardRadius),
-          ),
-          child: InkWell(
-            borderRadius: BorderRadius.circular(_cardRadius),
-            onTap: () => context.push('/account/${account.id}'),
-            child: Padding(
-              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
-              child: Row(
-                children: [
-                  Container(
-                    width: 46,
-                    height: 46,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: color.withValues(alpha: 0.14),
-                    ),
-                    child: Icon(
-                      AppIcons.resolve(account.iconKey),
-                      size: 24,
-                      color: color,
-                    ),
+        margin: EdgeInsets.zero,
+        // The account's own colour carries into its edge, so a row of cards
+        // reads as a row of *different* accounts at a glance.
+        shape: RoundedRectangleBorder(
+          borderRadius: BorderRadius.circular(_cardRadius),
+        ),
+        child: InkWell(
+          borderRadius: BorderRadius.circular(_cardRadius),
+          onTap: () => context.push('/account/${account.id}'),
+          child: Padding(
+            padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+            child: Row(
+              children: [
+                Container(
+                  width: 46,
+                  height: 46,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: color.withValues(alpha: 0.14),
                   ),
-                  const SizedBox(width: 16),
-                  Expanded(
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          account.name,
-                          maxLines: 1,
-                          overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.titleMedium?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                            fontWeight: FontWeight.w600,
+                  child: Icon(
+                    AppIcons.resolve(account.iconKey),
+                    size: 24,
+                    color: color,
+                  ),
+                ),
+                const SizedBox(width: 16),
+                Expanded(
+                  child: Column(
+                    mainAxisSize: MainAxisSize.min,
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        account.name,
+                        maxLines: 1,
+                        overflow: TextOverflow.ellipsis,
+                        style: theme.textTheme.titleMedium?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
+                          fontWeight: FontWeight.w600,
+                        ),
+                      ),
+                      const SizedBox(height: 2),
+                      FittedBox(
+                        fit: BoxFit.scaleDown,
+                        alignment: Alignment.centerLeft,
+                        child: BalanceText(
+                          account.currentBalance,
+                          style: theme.textTheme.headlineSmall?.copyWith(
+                            fontWeight: FontWeight.w700,
                           ),
                         ),
-                        const SizedBox(height: 2),
-                        FittedBox(
-                          fit: BoxFit.scaleDown,
-                          alignment: Alignment.centerLeft,
-                          child: BalanceText(
-                            account.currentBalance,
-                            style: theme.textTheme.headlineSmall?.copyWith(
-                              fontWeight: FontWeight.w700,
-                            ),
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                ],
-              ),
+                ),
+              ],
             ),
           ),
         ),
-      );
+      ),
+    );
   }
 }
 
@@ -1367,57 +1367,55 @@ class _SetBudgetCard extends StatelessWidget {
     final theme = Theme.of(context);
     return PressScale(
       child: Card(
-          margin: EdgeInsets.zero,
-          child: InkWell(
-            borderRadius: BorderRadius.circular(_cardRadius),
-            onTap: () => context.push('/more/budgets'),
-            child: Padding(
-              padding: const EdgeInsets.all(18),
-              child: Row(
-                children: [
-                  Container(
-                    width: 40,
-                    height: 40,
-                    alignment: Alignment.center,
-                    decoration: BoxDecoration(
-                      shape: BoxShape.circle,
-                      color: theme.colorScheme.secondary.withValues(
-                        alpha: 0.12,
+        margin: EdgeInsets.zero,
+        child: InkWell(
+          borderRadius: BorderRadius.circular(_cardRadius),
+          onTap: () => context.push('/more/budgets'),
+          child: Padding(
+            padding: const EdgeInsets.all(18),
+            child: Row(
+              children: [
+                Container(
+                  width: 40,
+                  height: 40,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: theme.colorScheme.secondary.withValues(alpha: 0.12),
+                  ),
+                  child: Icon(
+                    Icons.pie_chart_outline_rounded,
+                    size: 20,
+                    color: theme.colorScheme.secondary,
+                  ),
+                ),
+                const SizedBox(width: 14),
+                Expanded(
+                  child: Column(
+                    crossAxisAlignment: CrossAxisAlignment.start,
+                    children: [
+                      Text(
+                        'Set a budget',
+                        style: theme.textTheme.bodyLarge?.copyWith(
+                          fontWeight: FontWeight.w600,
+                        ),
                       ),
-                    ),
-                    child: Icon(
-                      Icons.pie_chart_outline_rounded,
-                      size: 20,
-                      color: theme.colorScheme.secondary,
-                    ),
-                  ),
-                  const SizedBox(width: 14),
-                  Expanded(
-                    child: Column(
-                      crossAxisAlignment: CrossAxisAlignment.start,
-                      children: [
-                        Text(
-                          'Set a budget',
-                          style: theme.textTheme.bodyLarge?.copyWith(
-                            fontWeight: FontWeight.w600,
-                          ),
+                      Text(
+                        'Cap a category and watch it fill',
+                        style: theme.textTheme.bodySmall?.copyWith(
+                          color: theme.colorScheme.onSurfaceVariant,
                         ),
-                        Text(
-                          'Cap a category and watch it fill',
-                          style: theme.textTheme.bodySmall?.copyWith(
-                            color: theme.colorScheme.onSurfaceVariant,
-                          ),
-                        ),
-                      ],
-                    ),
+                      ),
+                    ],
                   ),
-                  Icon(
-                    Icons.chevron_right,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                ],
-              ),
+                ),
+                Icon(
+                  Icons.chevron_right,
+                  color: theme.colorScheme.onSurfaceVariant,
+                ),
+              ],
             ),
+          ),
         ),
       ),
     );
@@ -1724,47 +1722,47 @@ class _EmptyState extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Card(
-        child: Padding(
-          padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
-          child: Column(
-            children: [
-              Container(
-                width: 64,
-                height: 64,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: theme.colorScheme.secondary.withValues(alpha: 0.10),
-                ),
-                child: Icon(
-                  Icons.receipt_long_outlined,
-                  size: 28,
-                  color: theme.colorScheme.secondary,
-                ),
+      child: Padding(
+        padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
+        child: Column(
+          children: [
+            Container(
+              width: 64,
+              height: 64,
+              alignment: Alignment.center,
+              decoration: BoxDecoration(
+                shape: BoxShape.circle,
+                color: theme.colorScheme.secondary.withValues(alpha: 0.10),
               ),
-              const SizedBox(height: 16),
-              Text(
-                'No transactions yet',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
+              child: Icon(
+                Icons.receipt_long_outlined,
+                size: 28,
+                color: theme.colorScheme.secondary,
               ),
-              const SizedBox(height: 4),
-              Text(
-                'Add your first one to see it here.',
-                textAlign: TextAlign.center,
-                style: theme.textTheme.bodyMedium?.copyWith(
-                  color: theme.colorScheme.onSurfaceVariant,
-                ),
+            ),
+            const SizedBox(height: 16),
+            Text(
+              'No transactions yet',
+              style: theme.textTheme.titleMedium?.copyWith(
+                fontWeight: FontWeight.w700,
               ),
-              const SizedBox(height: 20),
-              FilledButton.icon(
-                onPressed: () => context.push('/add'),
-                icon: const Icon(Icons.add_rounded),
-                label: const Text('Add transaction'),
+            ),
+            const SizedBox(height: 4),
+            Text(
+              'Add your first one to see it here.',
+              textAlign: TextAlign.center,
+              style: theme.textTheme.bodyMedium?.copyWith(
+                color: theme.colorScheme.onSurfaceVariant,
               ),
-            ],
-          ),
+            ),
+            const SizedBox(height: 20),
+            FilledButton.icon(
+              onPressed: () => context.push('/add'),
+              icon: const Icon(Icons.add_rounded),
+              label: const Text('Add transaction'),
+            ),
+          ],
+        ),
       ),
     );
   }

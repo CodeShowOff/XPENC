@@ -77,9 +77,10 @@ class AppTheme {
         systemOverlayStyle: isDark
             ? SystemUiOverlayStyle.light
             : SystemUiOverlayStyle.dark,
-        titleTextStyle: base.textTheme.headlineSmall?.copyWith(
+        titleTextStyle: base.textTheme.titleLarge?.copyWith(
           color: p.text,
-          fontWeight: _shiftWeight(shape.headlineWeight, fontWeightDelta),
+          fontSize: 22,
+          fontWeight: _shiftWeight(FontWeight.bold, fontWeightDelta),
           letterSpacing: shape.headlineLetterSpacing,
           fontFamily: displayFamily,
         ),

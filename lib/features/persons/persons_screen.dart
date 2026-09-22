@@ -330,12 +330,12 @@ class _PersonTile extends ConsumerWidget {
     if (balance.isPositive) {
       shown = balance;
       color = AppColors.income;
-      status = 'Owes you';
+      status = 'You gave';
       statusIcon = Icons.south_west_rounded;
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
-      status = 'You owe';
+      status = 'They gave';
       statusIcon = Icons.north_east_rounded;
     } else {
       shown = balance;
@@ -614,11 +614,11 @@ class _GroupTile extends ConsumerWidget {
     if (balance.isPositive) {
       shown = balance;
       color = AppColors.income;
-      status = 'Owed to you';
+      status = 'You gave';
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
-      status = 'You owe';
+      status = 'They gave';
     } else {
       shown = balance;
       color = theme.colorScheme.onSurfaceVariant;

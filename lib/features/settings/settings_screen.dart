@@ -33,15 +33,11 @@ class SettingsScreen extends ConsumerWidget {
     final myUpiId = ref.watch(myUpiIdProvider);
     final myUpiName = ref.watch(myUpiNameProvider);
     final myPaypal = ref.watch(myPaypalProvider);
-    final myVenmo = ref.watch(myVenmoProvider);
     final myCashapp = ref.watch(myCashappProvider);
-    final myRevolut = ref.watch(myRevolutProvider);
     final upiEnabled = ref.watch(upiEnabledProvider);
     final ussdPayEnabled = ref.watch(ussdPayEnabledProvider);
     final paypalEnabled = ref.watch(paypalEnabledProvider);
-    final venmoEnabled = ref.watch(venmoEnabledProvider);
     final cashappEnabled = ref.watch(cashappEnabledProvider);
-    final revolutEnabled = ref.watch(revolutEnabledProvider);
     final hasPasscode = ref.watch(hasPasscodeProvider);
     final pinUnlockEnabled = ref.watch(pinUnlockEnabledProvider);
     final masterPhraseUnlockEnabled = ref.watch(
@@ -335,32 +331,6 @@ class SettingsScreen extends ConsumerWidget {
                     ),
                   ),
                 ],
-                if (venmoEnabled) ...[
-                  Divider(height: 1, indent: 60, color: cs.outline),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    leading: const Icon(Icons.attach_money_rounded),
-                    title: const Text('My Venmo username'),
-                    subtitle: Text(
-                      (myVenmo?.isNotEmpty ?? false)
-                          ? myVenmo!
-                          : 'Needed for the Beta "Request" button on a '
-                                'person who owes you (US)',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => _showMyIdDialog(
-                      context,
-                      ref,
-                      title: 'My Venmo username',
-                      hintText: 'e.g. rahul',
-                      currentId: myVenmo,
-                      onSave: (id) => ref.read(dbProvider).setMyVenmo(id),
-                    ),
-                  ),
-                ],
                 if (cashappEnabled) ...[
                   Divider(height: 1, indent: 60, color: cs.outline),
                   ListTile(
@@ -384,32 +354,6 @@ class SettingsScreen extends ConsumerWidget {
                       hintText: r'e.g. $rahul',
                       currentId: myCashapp,
                       onSave: (id) => ref.read(dbProvider).setMyCashapp(id),
-                    ),
-                  ),
-                ],
-                if (revolutEnabled) ...[
-                  Divider(height: 1, indent: 60, color: cs.outline),
-                  ListTile(
-                    contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                    leading: const Icon(Icons.attach_money_rounded),
-                    title: const Text('My Revolut.me username'),
-                    subtitle: Text(
-                      (myRevolut?.isNotEmpty ?? false)
-                          ? myRevolut!
-                          : 'Needed for the Beta "Request" button on a '
-                                'person who owes you (Europe)',
-                      style: theme.textTheme.bodySmall?.copyWith(
-                        color: cs.onSurfaceVariant,
-                      ),
-                    ),
-                    trailing: const Icon(Icons.chevron_right_rounded),
-                    onTap: () => _showMyIdDialog(
-                      context,
-                      ref,
-                      title: 'My Revolut.me username',
-                      hintText: 'e.g. rahul',
-                      currentId: myRevolut,
-                      onSave: (id) => ref.read(dbProvider).setMyRevolut(id),
                     ),
                   ),
                 ],
@@ -471,26 +415,10 @@ class SettingsScreen extends ConsumerWidget {
                 Divider(height: 1, indent: 16, color: cs.outline),
                 SwitchListTile(
                   contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  title: const Text('Venmo'),
-                  subtitle: const Text('US'),
-                  value: venmoEnabled,
-                  onChanged: (v) => ref.read(dbProvider).setVenmoEnabled(v),
-                ),
-                Divider(height: 1, indent: 16, color: cs.outline),
-                SwitchListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
                   title: const Text('Cash App'),
                   subtitle: const Text('US'),
                   value: cashappEnabled,
                   onChanged: (v) => ref.read(dbProvider).setCashappEnabled(v),
-                ),
-                Divider(height: 1, indent: 16, color: cs.outline),
-                SwitchListTile(
-                  contentPadding: const EdgeInsets.symmetric(horizontal: 16),
-                  title: const Text('Revolut'),
-                  subtitle: const Text('Europe'),
-                  value: revolutEnabled,
-                  onChanged: (v) => ref.read(dbProvider).setRevolutEnabled(v),
                 ),
               ],
             ),

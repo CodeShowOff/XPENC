@@ -423,11 +423,11 @@ class _GroupBalanceHero extends StatelessWidget {
     if (balance.isPositive) {
       shown = balance;
       color = AppColors.income;
-      label = 'Owed to you';
+      label = 'You gave';
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
-      label = 'You owe';
+      label = 'They gave';
     } else {
       shown = balance;
       color = theme.colorScheme.onSurfaceVariant;

@@ -8,9 +8,7 @@ import 'package:go_router/go_router.dart';
 import '../../core/money.dart';
 import '../../core/payments/cashapp_launcher.dart';
 import '../../core/payments/paypal_launcher.dart';
-import '../../core/payments/revolut_launcher.dart';
 import '../../core/payments/upi_launcher.dart';
-import '../../core/payments/venmo_launcher.dart';
 import '../../core/theme/app_colors.dart';
 import '../../core/widgets/money_text.dart';
 import '../../core/widgets/statement_range_picker.dart';
@@ -192,11 +190,11 @@ class _BalanceHero extends StatelessWidget {
     if (balance.isPositive) {
       shown = balance;
       color = AppColors.income;
-      label = 'Owes you';
+      label = 'You gave';
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
-      label = 'You owe';
+      label = 'They gave';
     } else {
       shown = balance;
       color = theme.colorScheme.onSurfaceVariant;
@@ -251,21 +249,15 @@ class _ActionButtons extends ConsumerWidget {
     final myUpiId = ref.watch(myUpiIdProvider);
     final myUpiName = ref.watch(myUpiNameProvider);
     final myPaypal = ref.watch(myPaypalProvider);
-    final myVenmo = ref.watch(myVenmoProvider);
     final myCashapp = ref.watch(myCashappProvider);
-    final myRevolut = ref.watch(myRevolutProvider);
     final currencyCode = ref.watch(currencyProvider).code;
     final upiEnabled = ref.watch(upiEnabledProvider);
     final paypalEnabled = ref.watch(paypalEnabledProvider);
-    final venmoEnabled = ref.watch(venmoEnabledProvider);
     final cashappEnabled = ref.watch(cashappEnabledProvider);
-    final revolutEnabled = ref.watch(revolutEnabledProvider);
     final anyPaymentMethodEnabled =
         upiEnabled ||
         paypalEnabled ||
-        venmoEnabled ||
-        cashappEnabled ||
-        revolutEnabled;
+        cashappEnabled;
 
     return Padding(
       padding: const EdgeInsets.fromLTRB(20, 4, 20, 8),
@@ -276,8 +268,6 @@ class _ActionButtons extends ConsumerWidget {
               Expanded(
                 child: FilledButton.tonal(
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.income.withValues(alpha: 0.14),
-                    foregroundColor: AppColors.income,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () => _showEntrySheet(
@@ -285,20 +275,18 @@ class _ActionButtons extends ConsumerWidget {
                     personId,
                     PersonDirection.theyOwe,
                   ),
-                  child: const Text('They owe'),
+                  child: const Text('You gave'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
                 child: FilledButton.tonal(
                   style: FilledButton.styleFrom(
-                    backgroundColor: AppColors.expense.withValues(alpha: 0.14),
-                    foregroundColor: AppColors.expense,
                     padding: const EdgeInsets.symmetric(vertical: 14),
                   ),
                   onPressed: () =>
                       _showEntrySheet(context, personId, PersonDirection.iOwe),
-                  child: const Text('I owe'),
+                  child: const Text('They gave'),
                 ),
               ),
             ],
@@ -350,17 +338,6 @@ class _ActionButtons extends ConsumerWidget {
                       currencyCode: currencyCode,
                     ),
                   ),
-                if (venmoEnabled)
-                  PaymentMethodSpec(
-                    buttonLabel: 'Venmo',
-                    missingLabel: 'Venmo username',
-                    id: myVenmo,
-                    attempt: () => VenmoLauncher.launch(
-                      username: myVenmo!,
-                      amount: balance,
-                      note: 'Requested via XPENC',
-                    ),
-                  ),
                 if (cashappEnabled)
                   PaymentMethodSpec(
                     buttonLabel: 'Cash App',
@@ -368,16 +345,6 @@ class _ActionButtons extends ConsumerWidget {
                     id: myCashapp,
                     attempt: () => CashAppLauncher.launch(
                       cashtag: myCashapp!,
-                      amount: balance,
-                    ),
-                  ),
-                if (revolutEnabled)
-                  PaymentMethodSpec(
-                    buttonLabel: 'Revolut',
-                    missingLabel: 'Revolut username',
-                    id: myRevolut,
-                    attempt: () => RevolutLauncher.launch(
-                      username: myRevolut!,
                       amount: balance,
                     ),
                   ),
@@ -416,17 +383,6 @@ class _ActionButtons extends ConsumerWidget {
                       currencyCode: currencyCode,
                     ),
                   ),
-                if (venmoEnabled)
-                  PaymentMethodSpec(
-                    buttonLabel: 'Venmo',
-                    missingLabel: 'Venmo username',
-                    id: person.venmo,
-                    attempt: () => VenmoLauncher.launch(
-                      username: person.venmo!,
-                      amount: balance.abs,
-                      note: 'Settlement via XPENC',
-                    ),
-                  ),
                 if (cashappEnabled)
                   PaymentMethodSpec(
                     buttonLabel: 'Cash App',
@@ -434,16 +390,6 @@ class _ActionButtons extends ConsumerWidget {
                     id: person.cashapp,
                     attempt: () => CashAppLauncher.launch(
                       cashtag: person.cashapp!,
-                      amount: balance.abs,
-                    ),
-                  ),
-                if (revolutEnabled)
-                  PaymentMethodSpec(
-                    buttonLabel: 'Revolut',
-                    missingLabel: 'Revolut username',
-                    id: person.revolut,
-                    attempt: () => RevolutLauncher.launch(
-                      username: person.revolut!,
                       amount: balance.abs,
                     ),
                   ),
@@ -835,8 +781,8 @@ class _EntrySheetState extends ConsumerState<_EntrySheet> {
                   : widget.isRepayment
                   ? 'Saved as income'
                   : _theyOwe
-                  ? 'Saved — they owe you'
-                  : 'Saved — you owe them',
+                  ? 'Saved — you gave'
+                  : 'Saved — they gave',
             ),
           ),
         );
@@ -910,8 +856,8 @@ class _EntrySheetState extends ConsumerState<_EntrySheet> {
                     : widget.isRepayment
                     ? 'Mark as repaid'
                     : _theyOwe
-                    ? 'They owe you'
-                    : 'You owe them',
+                    ? 'You gave'
+                    : 'They gave',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: accent,
@@ -1021,7 +967,7 @@ class _EntrySheetState extends ConsumerState<_EntrySheet> {
               const SizedBox(height: 8),
               Text(
                 _accountId == null
-                    ? 'No money will move. This only records who owes whom.'
+                    ? 'No money will move. This only records who gave whom.'
                     : widget.isRepayment
                     ? 'This amount enters that account and posts as '
                           'income under the category below.'

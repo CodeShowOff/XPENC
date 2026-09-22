@@ -3,7 +3,7 @@ import 'package:url_launcher/url_launcher.dart';
 import '../money.dart';
 
 /// Builds and launches `https://cash.app/$cashtag/<amount>` links. Cash App
-/// is USD-only, so — like [VenmoLauncher] — there's no currency parameter;
+/// is USD-only, so there's no currency parameter;
 /// the caller passes the *other* person's cashtag for "Pay" and the app's
 /// own user's cashtag (`Settings.myCashapp`) for "Request". Beta: real Cash
 /// App app/browser behavior can't be fully guaranteed from code alone.

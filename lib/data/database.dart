@@ -424,19 +424,13 @@ class AppDatabase extends _$AppDatabase {
         await _addColumnIfMissing(m, settings, settings.myPaypal);
       }
       if (from < 50) {
-        await _addColumnIfMissing(m, persons, persons.venmo);
         await _addColumnIfMissing(m, persons, persons.cashapp);
-        await _addColumnIfMissing(m, persons, persons.revolut);
-        await _addColumnIfMissing(m, settings, settings.myVenmo);
         await _addColumnIfMissing(m, settings, settings.myCashapp);
-        await _addColumnIfMissing(m, settings, settings.myRevolut);
       }
       if (from < 51) {
         await _addColumnIfMissing(m, settings, settings.upiEnabled);
         await _addColumnIfMissing(m, settings, settings.paypalEnabled);
-        await _addColumnIfMissing(m, settings, settings.venmoEnabled);
         await _addColumnIfMissing(m, settings, settings.cashappEnabled);
-        await _addColumnIfMissing(m, settings, settings.revolutEnabled);
       }
       if (from < 52) {
         await _addColumnIfMissing(m, settings, settings.lockScreenStyle);
@@ -3156,9 +3150,7 @@ class AppDatabase extends _$AppDatabase {
     String? upiId,
     String? phone,
     String? paypal,
-    String? venmo,
     String? cashapp,
-    String? revolut,
     String? photoPath,
   }) => into(persons).insert(
     PersonsCompanion.insert(
@@ -3168,9 +3160,7 @@ class AppDatabase extends _$AppDatabase {
       upiId: Value(upiId),
       phone: Value(phone),
       paypal: Value(paypal),
-      venmo: Value(venmo),
       cashapp: Value(cashapp),
-      revolut: Value(revolut),
       photoPath: Value(photoPath),
     ),
   );
@@ -3187,9 +3177,7 @@ class AppDatabase extends _$AppDatabase {
     String? upiId,
     String? phone,
     String? paypal,
-    String? venmo,
     String? cashapp,
-    String? revolut,
     String? photoPath,
   }) => (update(persons)..where((p) => p.id.equals(id))).write(
     PersonsCompanion(
@@ -3199,9 +3187,7 @@ class AppDatabase extends _$AppDatabase {
       upiId: Value(upiId),
       phone: Value(phone),
       paypal: Value(paypal),
-      venmo: Value(venmo),
       cashapp: Value(cashapp),
-      revolut: Value(revolut),
       photoPath: Value(photoPath),
     ),
   );
@@ -4334,14 +4320,8 @@ class AppDatabase extends _$AppDatabase {
   Future<void> setMyPaypal(String? value) =>
       update(settings).write(SettingsCompanion(myPaypal: Value(value)));
 
-  Future<void> setMyVenmo(String? value) =>
-      update(settings).write(SettingsCompanion(myVenmo: Value(value)));
-
   Future<void> setMyCashapp(String? value) =>
       update(settings).write(SettingsCompanion(myCashapp: Value(value)));
-
-  Future<void> setMyRevolut(String? value) =>
-      update(settings).write(SettingsCompanion(myRevolut: Value(value)));
 
   Future<void> setUpiEnabled(bool value) =>
       update(settings).write(SettingsCompanion(upiEnabled: Value(value)));
@@ -4349,14 +4329,8 @@ class AppDatabase extends _$AppDatabase {
   Future<void> setPaypalEnabled(bool value) =>
       update(settings).write(SettingsCompanion(paypalEnabled: Value(value)));
 
-  Future<void> setVenmoEnabled(bool value) =>
-      update(settings).write(SettingsCompanion(venmoEnabled: Value(value)));
-
   Future<void> setCashappEnabled(bool value) =>
       update(settings).write(SettingsCompanion(cashappEnabled: Value(value)));
-
-  Future<void> setRevolutEnabled(bool value) =>
-      update(settings).write(SettingsCompanion(revolutEnabled: Value(value)));
 
   Future<void> setUssdPayEnabled(bool value) =>
       update(settings).write(SettingsCompanion(ussdPayEnabled: Value(value)));

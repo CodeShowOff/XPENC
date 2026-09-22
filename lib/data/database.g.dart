@@ -1673,32 +1673,12 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonRow> {
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _venmoMeta = const VerificationMeta('venmo');
-  @override
-  late final GeneratedColumn<String> venmo = GeneratedColumn<String>(
-    'venmo',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _cashappMeta = const VerificationMeta(
     'cashapp',
   );
   @override
   late final GeneratedColumn<String> cashapp = GeneratedColumn<String>(
     'cashapp',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _revolutMeta = const VerificationMeta(
-    'revolut',
-  );
-  @override
-  late final GeneratedColumn<String> revolut = GeneratedColumn<String>(
-    'revolut',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -1716,9 +1696,7 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonRow> {
     phone,
     photoPath,
     paypal,
-    venmo,
     cashapp,
-    revolut,
   ];
   @override
   String get aliasedName => _alias ?? actualTableName;
@@ -1791,22 +1769,10 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonRow> {
         paypal.isAcceptableOrUnknown(data['paypal']!, _paypalMeta),
       );
     }
-    if (data.containsKey('venmo')) {
-      context.handle(
-        _venmoMeta,
-        venmo.isAcceptableOrUnknown(data['venmo']!, _venmoMeta),
-      );
-    }
     if (data.containsKey('cashapp')) {
       context.handle(
         _cashappMeta,
         cashapp.isAcceptableOrUnknown(data['cashapp']!, _cashappMeta),
-      );
-    }
-    if (data.containsKey('revolut')) {
-      context.handle(
-        _revolutMeta,
-        revolut.isAcceptableOrUnknown(data['revolut']!, _revolutMeta),
       );
     }
     return context;
@@ -1858,17 +1824,9 @@ class $PersonsTable extends Persons with TableInfo<$PersonsTable, PersonRow> {
         DriftSqlType.string,
         data['${effectivePrefix}paypal'],
       ),
-      venmo: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}venmo'],
-      ),
       cashapp: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}cashapp'],
-      ),
-      revolut: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}revolut'],
       ),
     );
   }
@@ -1908,17 +1866,9 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
   /// the app's user owes them (see `PaypalLauncher`).
   final String? paypal;
 
-  /// Their Venmo username. Powers the "Pay" button — used to build a
-  /// `venmo.com` deep link (see `VenmoLauncher`). US-only in practice.
-  final String? venmo;
-
   /// Their Cash App cashtag (e.g. "$rahul"). Powers the "Pay" button — used
   /// to build a `cash.app` link (see `CashAppLauncher`). US-only in practice.
   final String? cashapp;
-
-  /// Their Revolut.me username. Powers the "Pay" button — used to build a
-  /// `revolut.me` link (see `RevolutLauncher`). Mainly useful in Europe.
-  final String? revolut;
   const PersonRow({
     required this.id,
     required this.name,
@@ -1930,9 +1880,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
     this.phone,
     this.photoPath,
     this.paypal,
-    this.venmo,
     this.cashapp,
-    this.revolut,
   });
   @override
   Map<String, Expression> toColumns(bool nullToAbsent) {
@@ -1959,14 +1907,8 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
     if (!nullToAbsent || paypal != null) {
       map['paypal'] = Variable<String>(paypal);
     }
-    if (!nullToAbsent || venmo != null) {
-      map['venmo'] = Variable<String>(venmo);
-    }
     if (!nullToAbsent || cashapp != null) {
       map['cashapp'] = Variable<String>(cashapp);
-    }
-    if (!nullToAbsent || revolut != null) {
-      map['revolut'] = Variable<String>(revolut);
     }
     return map;
   }
@@ -1993,15 +1935,9 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
       paypal: paypal == null && nullToAbsent
           ? const Value.absent()
           : Value(paypal),
-      venmo: venmo == null && nullToAbsent
-          ? const Value.absent()
-          : Value(venmo),
       cashapp: cashapp == null && nullToAbsent
           ? const Value.absent()
           : Value(cashapp),
-      revolut: revolut == null && nullToAbsent
-          ? const Value.absent()
-          : Value(revolut),
     );
   }
 
@@ -2021,9 +1957,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
       phone: serializer.fromJson<String?>(json['phone']),
       photoPath: serializer.fromJson<String?>(json['photoPath']),
       paypal: serializer.fromJson<String?>(json['paypal']),
-      venmo: serializer.fromJson<String?>(json['venmo']),
       cashapp: serializer.fromJson<String?>(json['cashapp']),
-      revolut: serializer.fromJson<String?>(json['revolut']),
     );
   }
   @override
@@ -2040,9 +1974,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
       'phone': serializer.toJson<String?>(phone),
       'photoPath': serializer.toJson<String?>(photoPath),
       'paypal': serializer.toJson<String?>(paypal),
-      'venmo': serializer.toJson<String?>(venmo),
       'cashapp': serializer.toJson<String?>(cashapp),
-      'revolut': serializer.toJson<String?>(revolut),
     };
   }
 
@@ -2057,9 +1989,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
     Value<String?> phone = const Value.absent(),
     Value<String?> photoPath = const Value.absent(),
     Value<String?> paypal = const Value.absent(),
-    Value<String?> venmo = const Value.absent(),
     Value<String?> cashapp = const Value.absent(),
-    Value<String?> revolut = const Value.absent(),
   }) => PersonRow(
     id: id ?? this.id,
     name: name ?? this.name,
@@ -2071,9 +2001,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
     phone: phone.present ? phone.value : this.phone,
     photoPath: photoPath.present ? photoPath.value : this.photoPath,
     paypal: paypal.present ? paypal.value : this.paypal,
-    venmo: venmo.present ? venmo.value : this.venmo,
     cashapp: cashapp.present ? cashapp.value : this.cashapp,
-    revolut: revolut.present ? revolut.value : this.revolut,
   );
   PersonRow copyWithCompanion(PersonsCompanion data) {
     return PersonRow(
@@ -2089,9 +2017,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
       phone: data.phone.present ? data.phone.value : this.phone,
       photoPath: data.photoPath.present ? data.photoPath.value : this.photoPath,
       paypal: data.paypal.present ? data.paypal.value : this.paypal,
-      venmo: data.venmo.present ? data.venmo.value : this.venmo,
       cashapp: data.cashapp.present ? data.cashapp.value : this.cashapp,
-      revolut: data.revolut.present ? data.revolut.value : this.revolut,
     );
   }
 
@@ -2108,9 +2034,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
           ..write('phone: $phone, ')
           ..write('photoPath: $photoPath, ')
           ..write('paypal: $paypal, ')
-          ..write('venmo: $venmo, ')
-          ..write('cashapp: $cashapp, ')
-          ..write('revolut: $revolut')
+          ..write('cashapp: $cashapp')
           ..write(')'))
         .toString();
   }
@@ -2127,9 +2051,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
     phone,
     photoPath,
     paypal,
-    venmo,
     cashapp,
-    revolut,
   );
   @override
   bool operator ==(Object other) =>
@@ -2145,9 +2067,7 @@ class PersonRow extends DataClass implements Insertable<PersonRow> {
           other.phone == this.phone &&
           other.photoPath == this.photoPath &&
           other.paypal == this.paypal &&
-          other.venmo == this.venmo &&
-          other.cashapp == this.cashapp &&
-          other.revolut == this.revolut);
+          other.cashapp == this.cashapp);
 }
 
 class PersonsCompanion extends UpdateCompanion<PersonRow> {
@@ -2161,9 +2081,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
   final Value<String?> phone;
   final Value<String?> photoPath;
   final Value<String?> paypal;
-  final Value<String?> venmo;
   final Value<String?> cashapp;
-  final Value<String?> revolut;
   const PersonsCompanion({
     this.id = const Value.absent(),
     this.name = const Value.absent(),
@@ -2175,9 +2093,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
     this.phone = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.paypal = const Value.absent(),
-    this.venmo = const Value.absent(),
     this.cashapp = const Value.absent(),
-    this.revolut = const Value.absent(),
   });
   PersonsCompanion.insert({
     this.id = const Value.absent(),
@@ -2190,9 +2106,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
     this.phone = const Value.absent(),
     this.photoPath = const Value.absent(),
     this.paypal = const Value.absent(),
-    this.venmo = const Value.absent(),
     this.cashapp = const Value.absent(),
-    this.revolut = const Value.absent(),
   }) : name = Value(name);
   static Insertable<PersonRow> custom({
     Expression<int>? id,
@@ -2205,9 +2119,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
     Expression<String>? phone,
     Expression<String>? photoPath,
     Expression<String>? paypal,
-    Expression<String>? venmo,
     Expression<String>? cashapp,
-    Expression<String>? revolut,
   }) {
     return RawValuesInsertable({
       if (id != null) 'id': id,
@@ -2220,9 +2132,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
       if (phone != null) 'phone': phone,
       if (photoPath != null) 'photo_path': photoPath,
       if (paypal != null) 'paypal': paypal,
-      if (venmo != null) 'venmo': venmo,
       if (cashapp != null) 'cashapp': cashapp,
-      if (revolut != null) 'revolut': revolut,
     });
   }
 
@@ -2237,9 +2147,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
     Value<String?>? phone,
     Value<String?>? photoPath,
     Value<String?>? paypal,
-    Value<String?>? venmo,
     Value<String?>? cashapp,
-    Value<String?>? revolut,
   }) {
     return PersonsCompanion(
       id: id ?? this.id,
@@ -2252,9 +2160,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
       phone: phone ?? this.phone,
       photoPath: photoPath ?? this.photoPath,
       paypal: paypal ?? this.paypal,
-      venmo: venmo ?? this.venmo,
       cashapp: cashapp ?? this.cashapp,
-      revolut: revolut ?? this.revolut,
     );
   }
 
@@ -2291,14 +2197,8 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
     if (paypal.present) {
       map['paypal'] = Variable<String>(paypal.value);
     }
-    if (venmo.present) {
-      map['venmo'] = Variable<String>(venmo.value);
-    }
     if (cashapp.present) {
       map['cashapp'] = Variable<String>(cashapp.value);
-    }
-    if (revolut.present) {
-      map['revolut'] = Variable<String>(revolut.value);
     }
     return map;
   }
@@ -2316,9 +2216,7 @@ class PersonsCompanion extends UpdateCompanion<PersonRow> {
           ..write('phone: $phone, ')
           ..write('photoPath: $photoPath, ')
           ..write('paypal: $paypal, ')
-          ..write('venmo: $venmo, ')
-          ..write('cashapp: $cashapp, ')
-          ..write('revolut: $revolut')
+          ..write('cashapp: $cashapp')
           ..write(')'))
         .toString();
   }
@@ -8952,34 +8850,12 @@ class $SettingsTable extends Settings
     type: DriftSqlType.string,
     requiredDuringInsert: false,
   );
-  static const VerificationMeta _myVenmoMeta = const VerificationMeta(
-    'myVenmo',
-  );
-  @override
-  late final GeneratedColumn<String> myVenmo = GeneratedColumn<String>(
-    'my_venmo',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
   static const VerificationMeta _myCashappMeta = const VerificationMeta(
     'myCashapp',
   );
   @override
   late final GeneratedColumn<String> myCashapp = GeneratedColumn<String>(
     'my_cashapp',
-    aliasedName,
-    true,
-    type: DriftSqlType.string,
-    requiredDuringInsert: false,
-  );
-  static const VerificationMeta _myRevolutMeta = const VerificationMeta(
-    'myRevolut',
-  );
-  @override
-  late final GeneratedColumn<String> myRevolut = GeneratedColumn<String>(
-    'my_revolut',
     aliasedName,
     true,
     type: DriftSqlType.string,
@@ -9015,21 +8891,6 @@ class $SettingsTable extends Settings
     ),
     defaultValue: const Constant(true),
   );
-  static const VerificationMeta _venmoEnabledMeta = const VerificationMeta(
-    'venmoEnabled',
-  );
-  @override
-  late final GeneratedColumn<bool> venmoEnabled = GeneratedColumn<bool>(
-    'venmo_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("venmo_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
   static const VerificationMeta _cashappEnabledMeta = const VerificationMeta(
     'cashappEnabled',
   );
@@ -9042,21 +8903,6 @@ class $SettingsTable extends Settings
     requiredDuringInsert: false,
     defaultConstraints: GeneratedColumn.constraintIsAlways(
       'CHECK ("cashapp_enabled" IN (0, 1))',
-    ),
-    defaultValue: const Constant(true),
-  );
-  static const VerificationMeta _revolutEnabledMeta = const VerificationMeta(
-    'revolutEnabled',
-  );
-  @override
-  late final GeneratedColumn<bool> revolutEnabled = GeneratedColumn<bool>(
-    'revolut_enabled',
-    aliasedName,
-    false,
-    type: DriftSqlType.bool,
-    requiredDuringInsert: false,
-    defaultConstraints: GeneratedColumn.constraintIsAlways(
-      'CHECK ("revolut_enabled" IN (0, 1))',
     ),
     defaultValue: const Constant(true),
   );
@@ -9669,14 +9515,10 @@ class $SettingsTable extends Settings
     myUpiId,
     myUpiName,
     myPaypal,
-    myVenmo,
     myCashapp,
-    myRevolut,
     upiEnabled,
     paypalEnabled,
-    venmoEnabled,
     cashappEnabled,
-    revolutEnabled,
     ussdPayEnabled,
     passcodeHash,
     passcodeSalt,
@@ -9824,22 +9666,10 @@ class $SettingsTable extends Settings
         myPaypal.isAcceptableOrUnknown(data['my_paypal']!, _myPaypalMeta),
       );
     }
-    if (data.containsKey('my_venmo')) {
-      context.handle(
-        _myVenmoMeta,
-        myVenmo.isAcceptableOrUnknown(data['my_venmo']!, _myVenmoMeta),
-      );
-    }
     if (data.containsKey('my_cashapp')) {
       context.handle(
         _myCashappMeta,
         myCashapp.isAcceptableOrUnknown(data['my_cashapp']!, _myCashappMeta),
-      );
-    }
-    if (data.containsKey('my_revolut')) {
-      context.handle(
-        _myRevolutMeta,
-        myRevolut.isAcceptableOrUnknown(data['my_revolut']!, _myRevolutMeta),
       );
     }
     if (data.containsKey('upi_enabled')) {
@@ -9857,30 +9687,12 @@ class $SettingsTable extends Settings
         ),
       );
     }
-    if (data.containsKey('venmo_enabled')) {
-      context.handle(
-        _venmoEnabledMeta,
-        venmoEnabled.isAcceptableOrUnknown(
-          data['venmo_enabled']!,
-          _venmoEnabledMeta,
-        ),
-      );
-    }
     if (data.containsKey('cashapp_enabled')) {
       context.handle(
         _cashappEnabledMeta,
         cashappEnabled.isAcceptableOrUnknown(
           data['cashapp_enabled']!,
           _cashappEnabledMeta,
-        ),
-      );
-    }
-    if (data.containsKey('revolut_enabled')) {
-      context.handle(
-        _revolutEnabledMeta,
-        revolutEnabled.isAcceptableOrUnknown(
-          data['revolut_enabled']!,
-          _revolutEnabledMeta,
         ),
       );
     }
@@ -10301,17 +10113,9 @@ class $SettingsTable extends Settings
         DriftSqlType.string,
         data['${effectivePrefix}my_paypal'],
       ),
-      myVenmo: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}my_venmo'],
-      ),
       myCashapp: attachedDatabase.typeMapping.read(
         DriftSqlType.string,
         data['${effectivePrefix}my_cashapp'],
-      ),
-      myRevolut: attachedDatabase.typeMapping.read(
-        DriftSqlType.string,
-        data['${effectivePrefix}my_revolut'],
       ),
       upiEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -10321,17 +10125,9 @@ class $SettingsTable extends Settings
         DriftSqlType.bool,
         data['${effectivePrefix}paypal_enabled'],
       )!,
-      venmoEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}venmo_enabled'],
-      )!,
       cashappEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
         data['${effectivePrefix}cashapp_enabled'],
-      )!,
-      revolutEnabled: attachedDatabase.typeMapping.read(
-        DriftSqlType.bool,
-        data['${effectivePrefix}revolut_enabled'],
       )!,
       ussdPayEnabled: attachedDatabase.typeMapping.read(
         DriftSqlType.bool,
@@ -10608,14 +10404,8 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
   /// as [myUpiId]. Null until set in Settings.
   final String? myPaypal;
 
-  /// The app user's own Venmo username, for the "Request" link.
-  final String? myVenmo;
-
   /// The app user's own Cash App cashtag, for the "Request" link.
   final String? myCashapp;
-
-  /// The app user's own Revolut.me username, for the "Request" link.
-  final String? myRevolut;
 
   /// Whether the UPI button/fields are offered at all. Defaults true so
   /// existing users see no change; the "Payment support" section in
@@ -10626,14 +10416,8 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
   /// Same as [upiEnabled], for PayPal.
   final bool paypalEnabled;
 
-  /// Same as [upiEnabled], for Venmo.
-  final bool venmoEnabled;
-
   /// Same as [upiEnabled], for Cash App.
   final bool cashappEnabled;
-
-  /// Same as [upiEnabled], for Revolut.
-  final bool revolutEnabled;
 
   /// Whether the "Pay without internet" (USSD *99#) beta is on — an opt-in
   /// FAB on the Persons screen that helps send a UPI payment over *99# when
@@ -10906,14 +10690,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
     this.myUpiId,
     this.myUpiName,
     this.myPaypal,
-    this.myVenmo,
     this.myCashapp,
-    this.myRevolut,
     required this.upiEnabled,
     required this.paypalEnabled,
-    required this.venmoEnabled,
     required this.cashappEnabled,
-    required this.revolutEnabled,
     required this.ussdPayEnabled,
     this.passcodeHash,
     this.passcodeSalt,
@@ -10983,20 +10763,12 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
     if (!nullToAbsent || myPaypal != null) {
       map['my_paypal'] = Variable<String>(myPaypal);
     }
-    if (!nullToAbsent || myVenmo != null) {
-      map['my_venmo'] = Variable<String>(myVenmo);
-    }
     if (!nullToAbsent || myCashapp != null) {
       map['my_cashapp'] = Variable<String>(myCashapp);
     }
-    if (!nullToAbsent || myRevolut != null) {
-      map['my_revolut'] = Variable<String>(myRevolut);
-    }
     map['upi_enabled'] = Variable<bool>(upiEnabled);
     map['paypal_enabled'] = Variable<bool>(paypalEnabled);
-    map['venmo_enabled'] = Variable<bool>(venmoEnabled);
     map['cashapp_enabled'] = Variable<bool>(cashappEnabled);
-    map['revolut_enabled'] = Variable<bool>(revolutEnabled);
     map['ussd_pay_enabled'] = Variable<bool>(ussdPayEnabled);
     if (!nullToAbsent || passcodeHash != null) {
       map['passcode_hash'] = Variable<String>(passcodeHash);
@@ -11119,20 +10891,12 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
       myPaypal: myPaypal == null && nullToAbsent
           ? const Value.absent()
           : Value(myPaypal),
-      myVenmo: myVenmo == null && nullToAbsent
-          ? const Value.absent()
-          : Value(myVenmo),
       myCashapp: myCashapp == null && nullToAbsent
           ? const Value.absent()
           : Value(myCashapp),
-      myRevolut: myRevolut == null && nullToAbsent
-          ? const Value.absent()
-          : Value(myRevolut),
       upiEnabled: Value(upiEnabled),
       paypalEnabled: Value(paypalEnabled),
-      venmoEnabled: Value(venmoEnabled),
       cashappEnabled: Value(cashappEnabled),
-      revolutEnabled: Value(revolutEnabled),
       ussdPayEnabled: Value(ussdPayEnabled),
       passcodeHash: passcodeHash == null && nullToAbsent
           ? const Value.absent()
@@ -11223,14 +10987,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
       myUpiId: serializer.fromJson<String?>(json['myUpiId']),
       myUpiName: serializer.fromJson<String?>(json['myUpiName']),
       myPaypal: serializer.fromJson<String?>(json['myPaypal']),
-      myVenmo: serializer.fromJson<String?>(json['myVenmo']),
       myCashapp: serializer.fromJson<String?>(json['myCashapp']),
-      myRevolut: serializer.fromJson<String?>(json['myRevolut']),
       upiEnabled: serializer.fromJson<bool>(json['upiEnabled']),
       paypalEnabled: serializer.fromJson<bool>(json['paypalEnabled']),
-      venmoEnabled: serializer.fromJson<bool>(json['venmoEnabled']),
       cashappEnabled: serializer.fromJson<bool>(json['cashappEnabled']),
-      revolutEnabled: serializer.fromJson<bool>(json['revolutEnabled']),
       ussdPayEnabled: serializer.fromJson<bool>(json['ussdPayEnabled']),
       passcodeHash: serializer.fromJson<String?>(json['passcodeHash']),
       passcodeSalt: serializer.fromJson<String?>(json['passcodeSalt']),
@@ -11340,14 +11100,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
       'myUpiId': serializer.toJson<String?>(myUpiId),
       'myUpiName': serializer.toJson<String?>(myUpiName),
       'myPaypal': serializer.toJson<String?>(myPaypal),
-      'myVenmo': serializer.toJson<String?>(myVenmo),
       'myCashapp': serializer.toJson<String?>(myCashapp),
-      'myRevolut': serializer.toJson<String?>(myRevolut),
       'upiEnabled': serializer.toJson<bool>(upiEnabled),
       'paypalEnabled': serializer.toJson<bool>(paypalEnabled),
-      'venmoEnabled': serializer.toJson<bool>(venmoEnabled),
       'cashappEnabled': serializer.toJson<bool>(cashappEnabled),
-      'revolutEnabled': serializer.toJson<bool>(revolutEnabled),
       'ussdPayEnabled': serializer.toJson<bool>(ussdPayEnabled),
       'passcodeHash': serializer.toJson<String?>(passcodeHash),
       'passcodeSalt': serializer.toJson<String?>(passcodeSalt),
@@ -11437,14 +11193,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
     Value<String?> myUpiId = const Value.absent(),
     Value<String?> myUpiName = const Value.absent(),
     Value<String?> myPaypal = const Value.absent(),
-    Value<String?> myVenmo = const Value.absent(),
     Value<String?> myCashapp = const Value.absent(),
-    Value<String?> myRevolut = const Value.absent(),
     bool? upiEnabled,
     bool? paypalEnabled,
-    bool? venmoEnabled,
     bool? cashappEnabled,
-    bool? revolutEnabled,
     bool? ussdPayEnabled,
     Value<String?> passcodeHash = const Value.absent(),
     Value<String?> passcodeSalt = const Value.absent(),
@@ -11506,14 +11258,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
     myUpiId: myUpiId.present ? myUpiId.value : this.myUpiId,
     myUpiName: myUpiName.present ? myUpiName.value : this.myUpiName,
     myPaypal: myPaypal.present ? myPaypal.value : this.myPaypal,
-    myVenmo: myVenmo.present ? myVenmo.value : this.myVenmo,
     myCashapp: myCashapp.present ? myCashapp.value : this.myCashapp,
-    myRevolut: myRevolut.present ? myRevolut.value : this.myRevolut,
     upiEnabled: upiEnabled ?? this.upiEnabled,
     paypalEnabled: paypalEnabled ?? this.paypalEnabled,
-    venmoEnabled: venmoEnabled ?? this.venmoEnabled,
     cashappEnabled: cashappEnabled ?? this.cashappEnabled,
-    revolutEnabled: revolutEnabled ?? this.revolutEnabled,
     ussdPayEnabled: ussdPayEnabled ?? this.ussdPayEnabled,
     passcodeHash: passcodeHash.present ? passcodeHash.value : this.passcodeHash,
     passcodeSalt: passcodeSalt.present ? passcodeSalt.value : this.passcodeSalt,
@@ -11605,24 +11353,16 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
       myUpiId: data.myUpiId.present ? data.myUpiId.value : this.myUpiId,
       myUpiName: data.myUpiName.present ? data.myUpiName.value : this.myUpiName,
       myPaypal: data.myPaypal.present ? data.myPaypal.value : this.myPaypal,
-      myVenmo: data.myVenmo.present ? data.myVenmo.value : this.myVenmo,
       myCashapp: data.myCashapp.present ? data.myCashapp.value : this.myCashapp,
-      myRevolut: data.myRevolut.present ? data.myRevolut.value : this.myRevolut,
       upiEnabled: data.upiEnabled.present
           ? data.upiEnabled.value
           : this.upiEnabled,
       paypalEnabled: data.paypalEnabled.present
           ? data.paypalEnabled.value
           : this.paypalEnabled,
-      venmoEnabled: data.venmoEnabled.present
-          ? data.venmoEnabled.value
-          : this.venmoEnabled,
       cashappEnabled: data.cashappEnabled.present
           ? data.cashappEnabled.value
           : this.cashappEnabled,
-      revolutEnabled: data.revolutEnabled.present
-          ? data.revolutEnabled.value
-          : this.revolutEnabled,
       ussdPayEnabled: data.ussdPayEnabled.present
           ? data.ussdPayEnabled.value
           : this.ussdPayEnabled,
@@ -11782,14 +11522,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
           ..write('myUpiId: $myUpiId, ')
           ..write('myUpiName: $myUpiName, ')
           ..write('myPaypal: $myPaypal, ')
-          ..write('myVenmo: $myVenmo, ')
           ..write('myCashapp: $myCashapp, ')
-          ..write('myRevolut: $myRevolut, ')
           ..write('upiEnabled: $upiEnabled, ')
           ..write('paypalEnabled: $paypalEnabled, ')
-          ..write('venmoEnabled: $venmoEnabled, ')
           ..write('cashappEnabled: $cashappEnabled, ')
-          ..write('revolutEnabled: $revolutEnabled, ')
           ..write('ussdPayEnabled: $ussdPayEnabled, ')
           ..write('passcodeHash: $passcodeHash, ')
           ..write('passcodeSalt: $passcodeSalt, ')
@@ -11857,14 +11593,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
     myUpiId,
     myUpiName,
     myPaypal,
-    myVenmo,
     myCashapp,
-    myRevolut,
     upiEnabled,
     paypalEnabled,
-    venmoEnabled,
     cashappEnabled,
-    revolutEnabled,
     ussdPayEnabled,
     passcodeHash,
     passcodeSalt,
@@ -11929,14 +11661,10 @@ class SettingRow extends DataClass implements Insertable<SettingRow> {
           other.myUpiId == this.myUpiId &&
           other.myUpiName == this.myUpiName &&
           other.myPaypal == this.myPaypal &&
-          other.myVenmo == this.myVenmo &&
           other.myCashapp == this.myCashapp &&
-          other.myRevolut == this.myRevolut &&
           other.upiEnabled == this.upiEnabled &&
           other.paypalEnabled == this.paypalEnabled &&
-          other.venmoEnabled == this.venmoEnabled &&
           other.cashappEnabled == this.cashappEnabled &&
-          other.revolutEnabled == this.revolutEnabled &&
           other.ussdPayEnabled == this.ussdPayEnabled &&
           other.passcodeHash == this.passcodeHash &&
           other.passcodeSalt == this.passcodeSalt &&
@@ -12001,14 +11729,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
   final Value<String?> myUpiId;
   final Value<String?> myUpiName;
   final Value<String?> myPaypal;
-  final Value<String?> myVenmo;
   final Value<String?> myCashapp;
-  final Value<String?> myRevolut;
   final Value<bool> upiEnabled;
   final Value<bool> paypalEnabled;
-  final Value<bool> venmoEnabled;
   final Value<bool> cashappEnabled;
-  final Value<bool> revolutEnabled;
   final Value<bool> ussdPayEnabled;
   final Value<String?> passcodeHash;
   final Value<String?> passcodeSalt;
@@ -12069,14 +11793,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
     this.myUpiId = const Value.absent(),
     this.myUpiName = const Value.absent(),
     this.myPaypal = const Value.absent(),
-    this.myVenmo = const Value.absent(),
     this.myCashapp = const Value.absent(),
-    this.myRevolut = const Value.absent(),
     this.upiEnabled = const Value.absent(),
     this.paypalEnabled = const Value.absent(),
-    this.venmoEnabled = const Value.absent(),
     this.cashappEnabled = const Value.absent(),
-    this.revolutEnabled = const Value.absent(),
     this.ussdPayEnabled = const Value.absent(),
     this.passcodeHash = const Value.absent(),
     this.passcodeSalt = const Value.absent(),
@@ -12138,14 +11858,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
     this.myUpiId = const Value.absent(),
     this.myUpiName = const Value.absent(),
     this.myPaypal = const Value.absent(),
-    this.myVenmo = const Value.absent(),
     this.myCashapp = const Value.absent(),
-    this.myRevolut = const Value.absent(),
     this.upiEnabled = const Value.absent(),
     this.paypalEnabled = const Value.absent(),
-    this.venmoEnabled = const Value.absent(),
     this.cashappEnabled = const Value.absent(),
-    this.revolutEnabled = const Value.absent(),
     this.ussdPayEnabled = const Value.absent(),
     this.passcodeHash = const Value.absent(),
     this.passcodeSalt = const Value.absent(),
@@ -12207,14 +11923,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
     Expression<String>? myUpiId,
     Expression<String>? myUpiName,
     Expression<String>? myPaypal,
-    Expression<String>? myVenmo,
     Expression<String>? myCashapp,
-    Expression<String>? myRevolut,
     Expression<bool>? upiEnabled,
     Expression<bool>? paypalEnabled,
-    Expression<bool>? venmoEnabled,
     Expression<bool>? cashappEnabled,
-    Expression<bool>? revolutEnabled,
     Expression<bool>? ussdPayEnabled,
     Expression<String>? passcodeHash,
     Expression<String>? passcodeSalt,
@@ -12279,14 +11991,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
       if (myUpiId != null) 'my_upi_id': myUpiId,
       if (myUpiName != null) 'my_upi_name': myUpiName,
       if (myPaypal != null) 'my_paypal': myPaypal,
-      if (myVenmo != null) 'my_venmo': myVenmo,
       if (myCashapp != null) 'my_cashapp': myCashapp,
-      if (myRevolut != null) 'my_revolut': myRevolut,
       if (upiEnabled != null) 'upi_enabled': upiEnabled,
       if (paypalEnabled != null) 'paypal_enabled': paypalEnabled,
-      if (venmoEnabled != null) 'venmo_enabled': venmoEnabled,
       if (cashappEnabled != null) 'cashapp_enabled': cashappEnabled,
-      if (revolutEnabled != null) 'revolut_enabled': revolutEnabled,
       if (ussdPayEnabled != null) 'ussd_pay_enabled': ussdPayEnabled,
       if (passcodeHash != null) 'passcode_hash': passcodeHash,
       if (passcodeSalt != null) 'passcode_salt': passcodeSalt,
@@ -12368,14 +12076,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
     Value<String?>? myUpiId,
     Value<String?>? myUpiName,
     Value<String?>? myPaypal,
-    Value<String?>? myVenmo,
     Value<String?>? myCashapp,
-    Value<String?>? myRevolut,
     Value<bool>? upiEnabled,
     Value<bool>? paypalEnabled,
-    Value<bool>? venmoEnabled,
     Value<bool>? cashappEnabled,
-    Value<bool>? revolutEnabled,
     Value<bool>? ussdPayEnabled,
     Value<String?>? passcodeHash,
     Value<String?>? passcodeSalt,
@@ -12438,14 +12142,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
       myUpiId: myUpiId ?? this.myUpiId,
       myUpiName: myUpiName ?? this.myUpiName,
       myPaypal: myPaypal ?? this.myPaypal,
-      myVenmo: myVenmo ?? this.myVenmo,
       myCashapp: myCashapp ?? this.myCashapp,
-      myRevolut: myRevolut ?? this.myRevolut,
       upiEnabled: upiEnabled ?? this.upiEnabled,
       paypalEnabled: paypalEnabled ?? this.paypalEnabled,
-      venmoEnabled: venmoEnabled ?? this.venmoEnabled,
       cashappEnabled: cashappEnabled ?? this.cashappEnabled,
-      revolutEnabled: revolutEnabled ?? this.revolutEnabled,
       ussdPayEnabled: ussdPayEnabled ?? this.ussdPayEnabled,
       passcodeHash: passcodeHash ?? this.passcodeHash,
       passcodeSalt: passcodeSalt ?? this.passcodeSalt,
@@ -12547,14 +12247,8 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
     if (myPaypal.present) {
       map['my_paypal'] = Variable<String>(myPaypal.value);
     }
-    if (myVenmo.present) {
-      map['my_venmo'] = Variable<String>(myVenmo.value);
-    }
     if (myCashapp.present) {
       map['my_cashapp'] = Variable<String>(myCashapp.value);
-    }
-    if (myRevolut.present) {
-      map['my_revolut'] = Variable<String>(myRevolut.value);
     }
     if (upiEnabled.present) {
       map['upi_enabled'] = Variable<bool>(upiEnabled.value);
@@ -12562,14 +12256,8 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
     if (paypalEnabled.present) {
       map['paypal_enabled'] = Variable<bool>(paypalEnabled.value);
     }
-    if (venmoEnabled.present) {
-      map['venmo_enabled'] = Variable<bool>(venmoEnabled.value);
-    }
     if (cashappEnabled.present) {
       map['cashapp_enabled'] = Variable<bool>(cashappEnabled.value);
-    }
-    if (revolutEnabled.present) {
-      map['revolut_enabled'] = Variable<bool>(revolutEnabled.value);
     }
     if (ussdPayEnabled.present) {
       map['ussd_pay_enabled'] = Variable<bool>(ussdPayEnabled.value);
@@ -12770,14 +12458,10 @@ class SettingsCompanion extends UpdateCompanion<SettingRow> {
           ..write('myUpiId: $myUpiId, ')
           ..write('myUpiName: $myUpiName, ')
           ..write('myPaypal: $myPaypal, ')
-          ..write('myVenmo: $myVenmo, ')
           ..write('myCashapp: $myCashapp, ')
-          ..write('myRevolut: $myRevolut, ')
           ..write('upiEnabled: $upiEnabled, ')
           ..write('paypalEnabled: $paypalEnabled, ')
-          ..write('venmoEnabled: $venmoEnabled, ')
           ..write('cashappEnabled: $cashappEnabled, ')
-          ..write('revolutEnabled: $revolutEnabled, ')
           ..write('ussdPayEnabled: $ussdPayEnabled, ')
           ..write('passcodeHash: $passcodeHash, ')
           ..write('passcodeSalt: $passcodeSalt, ')
@@ -22426,9 +22110,7 @@ typedef $$PersonsTableCreateCompanionBuilder =
       Value<String?> phone,
       Value<String?> photoPath,
       Value<String?> paypal,
-      Value<String?> venmo,
       Value<String?> cashapp,
-      Value<String?> revolut,
     });
 typedef $$PersonsTableUpdateCompanionBuilder =
     PersonsCompanion Function({
@@ -22442,9 +22124,7 @@ typedef $$PersonsTableUpdateCompanionBuilder =
       Value<String?> phone,
       Value<String?> photoPath,
       Value<String?> paypal,
-      Value<String?> venmo,
       Value<String?> cashapp,
-      Value<String?> revolut,
     });
 
 final class $$PersonsTableReferences
@@ -22628,18 +22308,8 @@ class $$PersonsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get venmo => $composableBuilder(
-    column: $table.venmo,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get cashapp => $composableBuilder(
     column: $table.cashapp,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get revolut => $composableBuilder(
-    column: $table.revolut,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -22853,18 +22523,8 @@ class $$PersonsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get venmo => $composableBuilder(
-    column: $table.venmo,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get cashapp => $composableBuilder(
     column: $table.cashapp,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get revolut => $composableBuilder(
-    column: $table.revolut,
     builder: (column) => ColumnOrderings(column),
   );
 }
@@ -22910,14 +22570,8 @@ class $$PersonsTableAnnotationComposer
   GeneratedColumn<String> get paypal =>
       $composableBuilder(column: $table.paypal, builder: (column) => column);
 
-  GeneratedColumn<String> get venmo =>
-      $composableBuilder(column: $table.venmo, builder: (column) => column);
-
   GeneratedColumn<String> get cashapp =>
       $composableBuilder(column: $table.cashapp, builder: (column) => column);
-
-  GeneratedColumn<String> get revolut =>
-      $composableBuilder(column: $table.revolut, builder: (column) => column);
 
   Expression<T> transactionsRefs<T extends Object>(
     Expression<T> Function($$TransactionsTableAnnotationComposer a) f,
@@ -23116,9 +22770,7 @@ class $$PersonsTableTableManager
                 Value<String?> phone = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<String?> paypal = const Value.absent(),
-                Value<String?> venmo = const Value.absent(),
                 Value<String?> cashapp = const Value.absent(),
-                Value<String?> revolut = const Value.absent(),
               }) => PersonsCompanion(
                 id: id,
                 name: name,
@@ -23130,9 +22782,7 @@ class $$PersonsTableTableManager
                 phone: phone,
                 photoPath: photoPath,
                 paypal: paypal,
-                venmo: venmo,
                 cashapp: cashapp,
-                revolut: revolut,
               ),
           createCompanionCallback:
               ({
@@ -23146,9 +22796,7 @@ class $$PersonsTableTableManager
                 Value<String?> phone = const Value.absent(),
                 Value<String?> photoPath = const Value.absent(),
                 Value<String?> paypal = const Value.absent(),
-                Value<String?> venmo = const Value.absent(),
                 Value<String?> cashapp = const Value.absent(),
-                Value<String?> revolut = const Value.absent(),
               }) => PersonsCompanion.insert(
                 id: id,
                 name: name,
@@ -23160,9 +22808,7 @@ class $$PersonsTableTableManager
                 phone: phone,
                 photoPath: photoPath,
                 paypal: paypal,
-                venmo: venmo,
                 cashapp: cashapp,
-                revolut: revolut,
               ),
           withReferenceMapper: (p0) => p0
               .map(
@@ -30255,14 +29901,10 @@ typedef $$SettingsTableCreateCompanionBuilder =
       Value<String?> myUpiId,
       Value<String?> myUpiName,
       Value<String?> myPaypal,
-      Value<String?> myVenmo,
       Value<String?> myCashapp,
-      Value<String?> myRevolut,
       Value<bool> upiEnabled,
       Value<bool> paypalEnabled,
-      Value<bool> venmoEnabled,
       Value<bool> cashappEnabled,
-      Value<bool> revolutEnabled,
       Value<bool> ussdPayEnabled,
       Value<String?> passcodeHash,
       Value<String?> passcodeSalt,
@@ -30325,14 +29967,10 @@ typedef $$SettingsTableUpdateCompanionBuilder =
       Value<String?> myUpiId,
       Value<String?> myUpiName,
       Value<String?> myPaypal,
-      Value<String?> myVenmo,
       Value<String?> myCashapp,
-      Value<String?> myRevolut,
       Value<bool> upiEnabled,
       Value<bool> paypalEnabled,
-      Value<bool> venmoEnabled,
       Value<bool> cashappEnabled,
-      Value<bool> revolutEnabled,
       Value<bool> ussdPayEnabled,
       Value<String?> passcodeHash,
       Value<String?> passcodeSalt,
@@ -30475,18 +30113,8 @@ class $$SettingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<String> get myVenmo => $composableBuilder(
-    column: $table.myVenmo,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<String> get myCashapp => $composableBuilder(
     column: $table.myCashapp,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<String> get myRevolut => $composableBuilder(
-    column: $table.myRevolut,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -30500,18 +30128,8 @@ class $$SettingsTableFilterComposer
     builder: (column) => ColumnFilters(column),
   );
 
-  ColumnFilters<bool> get venmoEnabled => $composableBuilder(
-    column: $table.venmoEnabled,
-    builder: (column) => ColumnFilters(column),
-  );
-
   ColumnFilters<bool> get cashappEnabled => $composableBuilder(
     column: $table.cashappEnabled,
-    builder: (column) => ColumnFilters(column),
-  );
-
-  ColumnFilters<bool> get revolutEnabled => $composableBuilder(
-    column: $table.revolutEnabled,
     builder: (column) => ColumnFilters(column),
   );
 
@@ -30852,18 +30470,8 @@ class $$SettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<String> get myVenmo => $composableBuilder(
-    column: $table.myVenmo,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<String> get myCashapp => $composableBuilder(
     column: $table.myCashapp,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<String> get myRevolut => $composableBuilder(
-    column: $table.myRevolut,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -30877,18 +30485,8 @@ class $$SettingsTableOrderingComposer
     builder: (column) => ColumnOrderings(column),
   );
 
-  ColumnOrderings<bool> get venmoEnabled => $composableBuilder(
-    column: $table.venmoEnabled,
-    builder: (column) => ColumnOrderings(column),
-  );
-
   ColumnOrderings<bool> get cashappEnabled => $composableBuilder(
     column: $table.cashappEnabled,
-    builder: (column) => ColumnOrderings(column),
-  );
-
-  ColumnOrderings<bool> get revolutEnabled => $composableBuilder(
-    column: $table.revolutEnabled,
     builder: (column) => ColumnOrderings(column),
   );
 
@@ -31203,14 +30801,8 @@ class $$SettingsTableAnnotationComposer
   GeneratedColumn<String> get myPaypal =>
       $composableBuilder(column: $table.myPaypal, builder: (column) => column);
 
-  GeneratedColumn<String> get myVenmo =>
-      $composableBuilder(column: $table.myVenmo, builder: (column) => column);
-
   GeneratedColumn<String> get myCashapp =>
       $composableBuilder(column: $table.myCashapp, builder: (column) => column);
-
-  GeneratedColumn<String> get myRevolut =>
-      $composableBuilder(column: $table.myRevolut, builder: (column) => column);
 
   GeneratedColumn<bool> get upiEnabled => $composableBuilder(
     column: $table.upiEnabled,
@@ -31222,18 +30814,8 @@ class $$SettingsTableAnnotationComposer
     builder: (column) => column,
   );
 
-  GeneratedColumn<bool> get venmoEnabled => $composableBuilder(
-    column: $table.venmoEnabled,
-    builder: (column) => column,
-  );
-
   GeneratedColumn<bool> get cashappEnabled => $composableBuilder(
     column: $table.cashappEnabled,
-    builder: (column) => column,
-  );
-
-  GeneratedColumn<bool> get revolutEnabled => $composableBuilder(
-    column: $table.revolutEnabled,
     builder: (column) => column,
   );
 
@@ -31537,14 +31119,10 @@ class $$SettingsTableTableManager
                 Value<String?> myUpiId = const Value.absent(),
                 Value<String?> myUpiName = const Value.absent(),
                 Value<String?> myPaypal = const Value.absent(),
-                Value<String?> myVenmo = const Value.absent(),
                 Value<String?> myCashapp = const Value.absent(),
-                Value<String?> myRevolut = const Value.absent(),
                 Value<bool> upiEnabled = const Value.absent(),
                 Value<bool> paypalEnabled = const Value.absent(),
-                Value<bool> venmoEnabled = const Value.absent(),
                 Value<bool> cashappEnabled = const Value.absent(),
-                Value<bool> revolutEnabled = const Value.absent(),
                 Value<bool> ussdPayEnabled = const Value.absent(),
                 Value<String?> passcodeHash = const Value.absent(),
                 Value<String?> passcodeSalt = const Value.absent(),
@@ -31608,14 +31186,10 @@ class $$SettingsTableTableManager
                 myUpiId: myUpiId,
                 myUpiName: myUpiName,
                 myPaypal: myPaypal,
-                myVenmo: myVenmo,
                 myCashapp: myCashapp,
-                myRevolut: myRevolut,
                 upiEnabled: upiEnabled,
                 paypalEnabled: paypalEnabled,
-                venmoEnabled: venmoEnabled,
                 cashappEnabled: cashappEnabled,
-                revolutEnabled: revolutEnabled,
                 ussdPayEnabled: ussdPayEnabled,
                 passcodeHash: passcodeHash,
                 passcodeSalt: passcodeSalt,
@@ -31678,14 +31252,10 @@ class $$SettingsTableTableManager
                 Value<String?> myUpiId = const Value.absent(),
                 Value<String?> myUpiName = const Value.absent(),
                 Value<String?> myPaypal = const Value.absent(),
-                Value<String?> myVenmo = const Value.absent(),
                 Value<String?> myCashapp = const Value.absent(),
-                Value<String?> myRevolut = const Value.absent(),
                 Value<bool> upiEnabled = const Value.absent(),
                 Value<bool> paypalEnabled = const Value.absent(),
-                Value<bool> venmoEnabled = const Value.absent(),
                 Value<bool> cashappEnabled = const Value.absent(),
-                Value<bool> revolutEnabled = const Value.absent(),
                 Value<bool> ussdPayEnabled = const Value.absent(),
                 Value<String?> passcodeHash = const Value.absent(),
                 Value<String?> passcodeSalt = const Value.absent(),
@@ -31749,14 +31319,10 @@ class $$SettingsTableTableManager
                 myUpiId: myUpiId,
                 myUpiName: myUpiName,
                 myPaypal: myPaypal,
-                myVenmo: myVenmo,
                 myCashapp: myCashapp,
-                myRevolut: myRevolut,
                 upiEnabled: upiEnabled,
                 paypalEnabled: paypalEnabled,
-                venmoEnabled: venmoEnabled,
                 cashappEnabled: cashappEnabled,
-                revolutEnabled: revolutEnabled,
                 ussdPayEnabled: ussdPayEnabled,
                 passcodeHash: passcodeHash,
                 passcodeSalt: passcodeSalt,

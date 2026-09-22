@@ -54,14 +54,8 @@ class _EditPersonSheetState extends ConsumerState<EditPersonSheet> {
   late final _paypalController = TextEditingController(
     text: widget.person?.paypal ?? '',
   );
-  late final _venmoController = TextEditingController(
-    text: widget.person?.venmo ?? '',
-  );
   late final _cashappController = TextEditingController(
     text: widget.person?.cashapp ?? '',
-  );
-  late final _revolutController = TextEditingController(
-    text: widget.person?.revolut ?? '',
   );
   late final _phoneController = TextEditingController(
     text: widget.person?.phone ?? '',
@@ -82,9 +76,7 @@ class _EditPersonSheetState extends ConsumerState<EditPersonSheet> {
     _noteController.dispose();
     _upiIdController.dispose();
     _paypalController.dispose();
-    _venmoController.dispose();
     _cashappController.dispose();
-    _revolutController.dispose();
     _phoneController.dispose();
     super.dispose();
   }
@@ -160,9 +152,7 @@ class _EditPersonSheetState extends ConsumerState<EditPersonSheet> {
         upiId: _upiIdController.text.trim().nullIfEmpty,
         phone: _phoneController.text.trim().nullIfEmpty,
         paypal: _paypalController.text.trim().nullIfEmpty,
-        venmo: _venmoController.text.trim().nullIfEmpty,
         cashapp: _cashappController.text.trim().nullIfEmpty,
-        revolut: _revolutController.text.trim().nullIfEmpty,
         photoPath: _photoPath,
       );
     } else {
@@ -174,9 +164,7 @@ class _EditPersonSheetState extends ConsumerState<EditPersonSheet> {
         upiId: _upiIdController.text.trim().nullIfEmpty,
         phone: _phoneController.text.trim().nullIfEmpty,
         paypal: _paypalController.text.trim().nullIfEmpty,
-        venmo: _venmoController.text.trim().nullIfEmpty,
         cashapp: _cashappController.text.trim().nullIfEmpty,
-        revolut: _revolutController.text.trim().nullIfEmpty,
         photoPath: _photoPath,
       );
     }
@@ -189,15 +177,11 @@ class _EditPersonSheetState extends ConsumerState<EditPersonSheet> {
     final theme = Theme.of(context);
     final upiEnabled = ref.watch(upiEnabledProvider);
     final paypalEnabled = ref.watch(paypalEnabledProvider);
-    final venmoEnabled = ref.watch(venmoEnabledProvider);
     final cashappEnabled = ref.watch(cashappEnabledProvider);
-    final revolutEnabled = ref.watch(revolutEnabledProvider);
     final anyPaymentMethodEnabled =
         upiEnabled ||
         paypalEnabled ||
-        venmoEnabled ||
-        cashappEnabled ||
-        revolutEnabled;
+        cashappEnabled;
 
     return Padding(
       padding: EdgeInsets.only(
@@ -323,18 +307,6 @@ class _EditPersonSheetState extends ConsumerState<EditPersonSheet> {
                 ),
                 const SizedBox(height: 12),
               ],
-              if (venmoEnabled) ...[
-                TextField(
-                  controller: _venmoController,
-                  textInputAction: TextInputAction.next,
-                  autocorrect: false,
-                  decoration: const InputDecoration(
-                    labelText: 'Venmo username',
-                    hintText: 'e.g. rahul (US)',
-                  ),
-                ),
-                const SizedBox(height: 12),
-              ],
               if (cashappEnabled) ...[
                 TextField(
                   controller: _cashappController,
@@ -346,18 +318,6 @@ class _EditPersonSheetState extends ConsumerState<EditPersonSheet> {
                   ),
                 ),
                 const SizedBox(height: 12),
-              ],
-              if (revolutEnabled) ...[
-                TextField(
-                  controller: _revolutController,
-                  textInputAction: TextInputAction.next,
-                  autocorrect: false,
-                  decoration: const InputDecoration(
-                    labelText: 'Revolut.me username',
-                    hintText: 'e.g. rahul (Europe)',
-                  ),
-                ),
-                const SizedBox(height: 4),
               ],
               const SizedBox(height: 12),
             ],

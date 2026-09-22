@@ -28,7 +28,7 @@ class PaymentMethodSpec {
 }
 
 /// A "Pay"/"Request" section: a label, a Beta badge, one button per
-/// payment method (UPI, PayPal, Venmo, Cash App, Revolut, ...), and — when
+/// payment method (UPI, PayPal, Cash App, ...), and — when
 /// any aren't set up yet — a single combined nudge naming them, rather than
 /// one hint line per method. A method whose id isn't set stays visible but
 /// disabled, never silently hidden, since that reads as broken rather than
