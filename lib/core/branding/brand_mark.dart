@@ -1,5 +1,4 @@
-import 'dart:math' as math;
-import 'dart:typed_data';
+
 
 import 'package:flutter/material.dart';
 
@@ -15,21 +14,7 @@ import 'app_info.dart';
 ///
 /// Vector, so it stays sharp at any size and picks up the theme's colours; an
 /// asset would need a light and a dark copy at five densities.
-class BrandGeometry {
-  const BrandGeometry._();
 
-  /// Fractions of the canvas width.
-  static const barLength = 0.560;
-  static const thickness = 0.128;
-
-  /// The transparent gap where the ascending stroke crosses the descending one.
-  /// Without it the two bars merge into a blob below about 40 dp.
-  static const seam = 0.030;
-
-  /// Superellipse exponent. 2 is an ellipse, ∞ is a square, 4.4 is the squircle.
-  static const squircleN = 4.4;
-  static const inset = 0.02;
-}
 
 /// A squircle tile with the X knocked into it.
 ///
@@ -60,118 +45,20 @@ class BrandMark extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
     return SizedBox.square(
       dimension: size,
-      child: CustomPaint(
-        painter: _MarkPainter(
-          tile: tile ?? cs.onSurface,
-          ink: ink ?? cs.surface,
-          rim: radiusRim,
+      child: ClipRRect(
+        borderRadius: BorderRadius.circular(size * 0.2),
+        child: Image.asset(
+          'assets/images/appicon.png',
+          fit: BoxFit.cover,
         ),
-        isComplex: false,
       ),
     );
   }
 }
 
-class _MarkPainter extends CustomPainter {
-  const _MarkPainter({required this.tile, required this.ink, required this.rim});
 
-  final Color tile;
-  final Color ink;
-  final bool rim;
-
-  @override
-  void paint(Canvas canvas, Size size) {
-    final tilePath = _squircle(size);
-    canvas.drawPath(tilePath, Paint()..color = tile);
-
-    if (rim) {
-      canvas.drawPath(
-        tilePath,
-        Paint()
-          ..style = PaintingStyle.stroke
-          ..strokeWidth = math.max(1, size.width * 0.008)
-          ..color = ink.withValues(alpha: 0.10),
-      );
-    }
-
-    canvas.drawPath(_mark(size), Paint()..color = ink..isAntiAlias = true);
-  }
-
-  /// |x/a|^n + |y/a|^n = 1, walked as a polygon.
-  Path _squircle(Size size) {
-    const n = BrandGeometry.squircleN;
-    final a = size.width * (0.5 - BrandGeometry.inset);
-    final c = size.width / 2;
-    const e = 2.0 / n;
-    const steps = 144;
-
-    final path = Path();
-    for (var i = 0; i < steps; i++) {
-      final t = 2 * math.pi * i / steps;
-      final ct = math.cos(t), st = math.sin(t);
-      final x = c + a * _copySignPow(ct, e);
-      final y = c + a * _copySignPow(st, e);
-      i == 0 ? path.moveTo(x, y) : path.lineTo(x, y);
-    }
-    return path..close();
-  }
-
-  static double _copySignPow(double v, double e) =>
-      math.pow(v.abs(), e).toDouble() * (v.isNegative ? -1 : 1);
-
-  /// `(descending − widenedAscending) ∪ ascending`, which is what carves the
-  /// seam and puts the ascending stroke visually on top.
-  Path _mark(Size size) {
-    final t = size.width * BrandGeometry.thickness;
-    final gap = size.width * BrandGeometry.seam;
-
-    final descending = _bar(size, math.pi / 4, t);
-    final ascending = _bar(size, -math.pi / 4, t);
-    final ascendingWide = _bar(size, -math.pi / 4, t + 2 * gap);
-
-    return Path.combine(
-      PathOperation.union,
-      Path.combine(PathOperation.difference, descending, ascendingWide),
-      ascending,
-    );
-  }
-
-  /// A stadium of the brand's bar length, rotated about the canvas centre.
-  Path _bar(Size size, double angle, double thickness) {
-    final c = Offset(size.width / 2, size.height / 2);
-    final rect = Rect.fromCenter(
-      center: c,
-      width: size.width * BrandGeometry.barLength,
-      height: thickness,
-    );
-    final bar = Path()
-      ..addRRect(RRect.fromRectAndRadius(rect, Radius.circular(thickness / 2)));
-    return bar.transform(_rotationAbout(angle, c));
-  }
-
-  /// Column-major 4×4 rotation about [c]. Hand-rolled to keep this file free of
-  /// a `vector_math` import for what is ultimately six numbers.
-  static Float64List _rotationAbout(double angle, Offset c) {
-    final cos = math.cos(angle), sin = math.sin(angle);
-    final m = Float64List(16);
-    m[0] = cos;
-    m[1] = sin;
-    m[4] = -sin;
-    m[5] = cos;
-    m[10] = 1;
-    m[12] = c.dx - c.dx * cos + c.dy * sin;
-    m[13] = c.dy - c.dx * sin - c.dy * cos;
-    m[15] = 1;
-    return m;
-  }
-
-  @override
-  bool shouldRepaint(_MarkPainter old) =>
-      old.tile != tile || old.ink != ink || old.rim != rim;
-}
 
 /// `XPENC`, set the way the brand sets it: heavy, tight, all caps.
 class BrandWordmark extends StatelessWidget {

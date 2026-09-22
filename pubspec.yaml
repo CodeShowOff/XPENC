@@ -107,6 +107,12 @@ dev_dependencies:
   flutter_lints: ^6.0.0
   drift_dev: 2.31.0
   build_runner: ^2.15.1
+  flutter_launcher_icons: ^0.13.1
+
+flutter_launcher_icons:
+  android: "launcher_icon"
+  ios: false
+  image_path: "assets/images/appicon.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec
@@ -119,6 +125,8 @@ flutter:
   # the material Icons class.
   uses-material-design: true
 
+  assets:
+    - assets/images/appicon.png
 
   # The Bold theme's own typography (see ThemeShape.bold) — bundled once,
   # offline, rather than fetched at runtime with a package like google_fonts.

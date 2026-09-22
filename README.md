@@ -1,7 +1,7 @@
 
 <div align="center">
 
-<img src="branding/xpenc_banner.svg" width="720" alt="XPENC — Money, tracked honestly.">
+<img src="branding/playstore_feature_graphic.png" width="720" alt="XPENC — Money, tracked honestly.">
 
 <br><br>
 
@@ -161,19 +161,8 @@ steps are in [CONTRIBUTING.md](CONTRIBUTING.md#changing-the-database-schema).
 
 ## Brand
 
-<img src="branding/xpenc_icon_512.png" width="72" align="right" alt="XPENC icon">
 
-Every asset — launcher icons, adaptive icon, Android 13 themed icon, splash
-marks, favicons and the website icons — is generated from **one geometric
-definition**:
-
-```sh
-python tool/generate_icons.py
-```
-
-Nothing is hand-drawn, so the icons cannot drift out of sync. The in-app logo
-(`lib/core/branding/brand_mark.dart`) redraws the same geometry as a
-`CustomPainter`, so it stays sharp at any size and follows the theme.
+Every asset — launcher icons, favicons, splash marks and website icons — is generated from the core logo design `assets/images/appicon.png`.
 
 ## Project structure
 
