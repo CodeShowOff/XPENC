@@ -340,12 +340,12 @@ class _PersonTile extends ConsumerWidget {
       shown = balance;
       color = AppColors.income;
       status = 'You gave';
-      statusIcon = Icons.south_west_rounded;
+      statusIcon = Icons.north_east_rounded;
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
       status = 'They gave';
-      statusIcon = Icons.north_east_rounded;
+      statusIcon = Icons.south_west_rounded;
     } else {
       shown = balance;
       color = theme.colorScheme.onSurfaceVariant;
