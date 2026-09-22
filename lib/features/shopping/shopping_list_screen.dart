@@ -75,10 +75,12 @@ class ShoppingListScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
-              child: Column(
-                children: [
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                   Icon(
                     Icons.checklist_outlined,
                     size: 48,
@@ -94,7 +96,8 @@ class ShoppingListScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            );
+            ),
+          );
           }
 
           final unchecked = items.where((i) => !i.isChecked).toList();

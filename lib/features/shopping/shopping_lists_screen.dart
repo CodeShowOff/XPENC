@@ -8,14 +8,20 @@ import '../../data/providers.dart';
 /// Preset colours for a shopping list. Its own decorative colour, same idea
 /// as a tag's — not a money-direction signal.
 const _presetColors = <int>[
-  0xFF16A34A,
-  0xFF2563EB,
-  0xFFDC2626,
-  0xFFA855F7,
-  0xFFF97316,
-  0xFF0EA5E9,
-  0xFF78716C,
-  0xFFEC4899,
+  0xFF16A34A, // Green
+  0xFF2563EB, // Blue
+  0xFFDC2626, // Red
+  0xFFA855F7, // Purple
+  0xFFF97316, // Orange
+  0xFF0EA5E9, // Light Blue
+  0xFF78716C, // Gray
+  0xFFEC4899, // Pink
+  0xFF14B8A6, // Teal
+  0xFFF59E0B, // Amber
+  0xFF4F46E5, // Indigo
+  0xFFF43F5E, // Rose
+  0xFF84CC16, // Lime
+  0xFF06B6D4, // Cyan
 ];
 
 /// Every shopping list the user keeps, each its own named plan (e.g. "Weekly
@@ -44,10 +50,12 @@ class ShoppingListsScreen extends ConsumerWidget {
         ),
         data: (lists) {
           if (lists.isEmpty) {
-            return Padding(
-              padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
-              child: Column(
-                children: [
+            return Center(
+              child: Padding(
+                padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+                child: Column(
+                  mainAxisSize: MainAxisSize.min,
+                  children: [
                   Icon(
                     Icons.checklist_outlined,
                     size: 48,
@@ -63,7 +71,8 @@ class ShoppingListsScreen extends ConsumerWidget {
                   ),
                 ],
               ),
-            );
+            ),
+          );
           }
           return ListView.builder(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 96),

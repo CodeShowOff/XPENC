@@ -410,7 +410,9 @@ class _MoneyMetricChip extends StatelessWidget {
         padding: const EdgeInsets.symmetric(vertical: 8),
         alignment: Alignment.center,
         decoration: BoxDecoration(
-          color: active ? color.withValues(alpha: 0.14) : Colors.transparent,
+          color: active
+              ? color.withValues(alpha: 0.14)
+              : theme.colorScheme.surfaceContainerHighest.withValues(alpha: 0.4),
           borderRadius: BorderRadius.circular(999),
         ),
         child: Text(
@@ -612,7 +614,7 @@ class _ThisMonthCardState extends ConsumerState<_ThisMonthCard> {
                       ),
                       const SizedBox(height: 16),
                       _ProportionBar(income: t.income, expense: t.expense),
-                      const SizedBox(height: 14),
+                      const SizedBox(height: 2),
                       _NetLine(net: t.income - t.expense),
                     ],
                   ),
@@ -775,15 +777,15 @@ class _AccountsStrip extends ConsumerWidget {
                   child: const Text('See all'),
                 ),
               ),
-              SizedBox(
-                // Height for horizontal row layout: 16px padding * 2 + ~48px content
-                height: 96,
-                child: ListView.separated(
-                  scrollDirection: Axis.horizontal,
-                  padding: const EdgeInsets.symmetric(horizontal: 20),
-                  itemCount: list.length,
-                  separatorBuilder: (_, _) => const SizedBox(width: 12),
-                  itemBuilder: (context, i) => _AccountCard(account: list[i]),
+              Padding(
+                padding: const EdgeInsets.symmetric(horizontal: 20),
+                child: Column(
+                  children: [
+                    for (var i = 0; i < list.length; i++) ...[
+                      if (i > 0) const SizedBox(height: 12),
+                      _AccountCard(account: list[i]),
+                    ],
+                  ],
                 ),
               ),
             ],
@@ -808,12 +810,8 @@ class _AccountCard extends StatelessWidget {
     final theme = Theme.of(context);
     final color = Color(account.colorValue);
 
-    final cardWidth = MediaQuery.of(context).size.width - 52; // leaves a 12px peek for the next card
-
-    return SizedBox(
-      width: cardWidth,
-      child: PressScale(
-        child: Card(
+    return PressScale(
+      child: Card(
           margin: EdgeInsets.zero,
           // The account's own colour carries into its edge, so a row of cards
           // reads as a row of *different* accounts at a glance.
@@ -875,8 +873,7 @@ class _AccountCard extends StatelessWidget {
             ),
           ),
         ),
-      ),
-    );
+      );
   }
 }
 

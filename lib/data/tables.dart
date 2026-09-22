@@ -1062,7 +1062,7 @@ class Settings extends Table {
   /// and More are pinned and never appear here (see `AppShell`'s
   /// `BottomNavCatalog`). GitHub #70.
   TextColumn get bottomNavSlots =>
-      text().withDefault(const Constant('transactions,persons'))();
+      text().withDefault(const Constant('persons,shopping'))();
 
   /// Whether each bottom-nav item shows its small text label under the icon.
   /// On by default; off collapses the bar to icon-only.

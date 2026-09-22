@@ -9538,7 +9538,7 @@ class $SettingsTable extends Settings
     false,
     type: DriftSqlType.string,
     requiredDuringInsert: false,
-    defaultValue: const Constant('transactions,persons'),
+    defaultValue: const Constant('persons,shopping'),
   );
   static const VerificationMeta _showBottomNavLabelsMeta =
       const VerificationMeta('showBottomNavLabels');

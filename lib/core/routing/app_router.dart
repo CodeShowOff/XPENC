@@ -411,6 +411,14 @@ final appRouter = GoRouter(
             ),
           ],
         ),
+        StatefulShellBranch(
+          routes: [
+            GoRoute(
+              path: '/shopping-tab',
+              builder: (_, _) => const ShoppingListsScreen(),
+            ),
+          ],
+        ),
       ],
     ),
 

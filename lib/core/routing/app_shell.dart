@@ -78,12 +78,18 @@ class AppShell extends ConsumerWidget {
       Icons.storefront_rounded,
       'Payees',
     ),
+    'shopping': _TabSpec(
+      9,
+      Icons.shopping_bag_outlined,
+      Icons.shopping_bag_rounded,
+      'Shopping',
+    ),
   };
 
   static (String, String) _slotIds(WidgetRef ref) {
     final raw =
         ref.watch(settingsProvider).valueOrNull?.bottomNavSlots ??
-        'transactions,persons';
+        'persons,shopping';
     final parts = raw.split(',');
     if (parts.length != 2 ||
         !_catalog.containsKey(parts[0]) ||
@@ -91,7 +97,7 @@ class AppShell extends ConsumerWidget {
       // A value that somehow doesn't parse (shouldn't happen — only
       // `setBottomNavSlots` ever writes this column, and it validates) falls
       // back to the same default the column itself defaults to.
-      return ('transactions', 'persons');
+      return ('persons', 'shopping');
     }
     return (parts[0], parts[1]);
   }
@@ -485,6 +491,7 @@ class _TopBar extends ConsumerWidget implements PreferredSizeWidget {
     'Accounts', // 6
     'Stats', // 7
     'Payees', // 8
+    'Shopping', // 9
   ];
 
   @override

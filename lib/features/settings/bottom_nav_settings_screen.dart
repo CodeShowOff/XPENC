@@ -16,10 +16,10 @@ class BottomNavSettingsScreen extends ConsumerWidget {
     final theme = Theme.of(context);
     final raw =
         ref.watch(settingsProvider).valueOrNull?.bottomNavSlots ??
-        'transactions,persons';
+        'persons,shopping';
     final parts = raw.split(',');
-    final leftId = parts.length == 2 ? parts[0] : 'transactions';
-    final rightId = parts.length == 2 ? parts[1] : 'persons';
+    final leftId = parts.length == 2 ? parts[0] : 'persons';
+    final rightId = parts.length == 2 ? parts[1] : 'shopping';
     final showLabels = ref.watch(showBottomNavLabelsProvider);
     final extraBottomInset = ref.watch(extraBottomInsetProvider);
 
@@ -64,7 +64,12 @@ class BottomNavSettingsScreen extends ConsumerWidget {
     return Scaffold(
       appBar: AppBar(title: const Text('Customize bottom nav')),
       body: ListView(
-        padding: const EdgeInsets.fromLTRB(20, 16, 20, 32),
+        padding: EdgeInsets.fromLTRB(
+          20,
+          16,
+          20,
+          32 + MediaQuery.paddingOf(context).bottom,
+        ),
         children: [
           Text(
             'Dashboard and More always stay put. Pick what goes in the two '
