@@ -114,11 +114,6 @@ class _PersonsScreenState extends ConsumerState<PersonsScreen>
                   icon: const Icon(Icons.inventory_2_outlined),
                   onPressed: () => context.push('/persons/archived'),
                 ),
-                IconButton(
-                  tooltip: 'Add person',
-                  icon: const Icon(Icons.person_add_alt_1_outlined),
-                  onPressed: () => showAddPersonDialog(context, ref),
-                ),
               ],
             ),
       body: Column(
@@ -127,6 +122,7 @@ class _PersonsScreenState extends ConsumerState<PersonsScreen>
             controller: _tabController,
             tabs: const [Tab(text: 'Individual'), Tab(text: 'Group')],
           ),
+          const SizedBox(height: 12),
           Expanded(
             child: TabBarView(
               controller: _tabController,
@@ -141,13 +137,26 @@ class _PersonsScreenState extends ConsumerState<PersonsScreen>
               onPressed: () => _createGroup(context, ref),
               child: const Icon(Icons.add_rounded),
             )
-          : ussdPayEnabled
-          ? FloatingActionButton(
-              tooltip: 'Pay without internet',
-              onPressed: () => context.push('/persons/ussd-pay'),
-              child: const Icon(Icons.send_rounded),
-            )
-          : null,
+          : Column(
+              mainAxisSize: MainAxisSize.min,
+              children: [
+                if (ussdPayEnabled) ...[
+                  FloatingActionButton.small(
+                    heroTag: 'ussd',
+                    tooltip: 'Pay without internet',
+                    onPressed: () => context.push('/persons/ussd-pay'),
+                    child: const Icon(Icons.send_rounded),
+                  ),
+                  const SizedBox(height: 16),
+                ],
+                FloatingActionButton(
+                  heroTag: 'add_person',
+                  tooltip: 'Add person',
+                  onPressed: () => showAddPersonDialog(context, ref),
+                  child: const Icon(Icons.person_add_alt_1_outlined),
+                ),
+              ],
+            ),
     );
   }
 }

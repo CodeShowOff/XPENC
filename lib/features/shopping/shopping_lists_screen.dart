@@ -37,7 +37,14 @@ class ShoppingListsScreen extends ConsumerWidget {
     final summaries = ref.watch(shoppingListSummaryProvider);
 
     return Scaffold(
-      appBar: AppBar(title: const Text('Shopping Lists')),
+      appBar: AppBar(
+        title: Text(
+          'Shopping Lists',
+          style: theme.textTheme.titleMedium?.copyWith(
+            fontWeight: FontWeight.w700,
+          ),
+        ),
+      ),
       body: listsAsync.when(
         loading: () => const Center(child: CircularProgressIndicator()),
         error: (_, _) => Center(
@@ -56,23 +63,23 @@ class ShoppingListsScreen extends ConsumerWidget {
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                  Icon(
-                    Icons.checklist_outlined,
-                    size: 48,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'No shopping lists yet — tap + to start one.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    Icon(
+                      Icons.checklist_outlined,
+                      size: 48,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      'No shopping lists yet — tap + to start one.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
           }
           return ListView.builder(
             padding: const EdgeInsets.fromLTRB(20, 12, 20, 96),

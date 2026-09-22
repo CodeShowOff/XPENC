@@ -19,7 +19,6 @@ import '../../data/tables.dart';
 import '../accounts/envelope_outflow.dart';
 import '../settings/currency_picker_sheet.dart';
 import '../tags/tag_picker_sheet.dart';
-import 'amount_buffer.dart';
 import 'date_time_combine.dart';
 import 'receipt_storage.dart';
 
@@ -139,17 +138,8 @@ class AddTransactionScreen extends ConsumerStatefulWidget {
 class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   late TxType _type;
 
-  /// Raw rupee text as typed on the keypad: digits + at most one '.'.
-  String _buffer = '';
-
-  /// True right after loading an existing transaction for edit, until the
-  /// first keypad tap. A prefilled buffer like "15.44" already has two
-  /// decimal digits, so without this the two-decimal-place guard in
-  /// [_onKey] rejects every digit from the moment the screen opens — the
-  /// amount looks permanently stuck and only backspace appears to work
-  /// (see GitHub #45). The first digit tap clears the stale value and
-  /// starts fresh, same as tapping a digit after a calculator result.
-  bool _freshAmountEntry = false;
+  final _amountController = TextEditingController();
+  final _amountFocus = FocusNode();
 
   int? _accountId; // expense/income: account. transfer: FROM account.
   int? _toAccountId; // transfer: TO account.
@@ -217,7 +207,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   /// True while an existing transaction is being fetched for editing.
   bool _loading = false;
-  bool _isKeypadVisible = false;
 
   bool get _isEditing => widget.transactionId != null;
 
@@ -255,18 +244,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
   Money get _foreignAmount =>
       Money.tryParse(_foreignAmountController.text) ?? const Money.zero();
 
-  /// The on-screen keypad and the system keyboard must never both be up —
-  /// they'd fight over the same strip of screen and hide whatever the user
-  /// just typed. The keypad only shows while no text field has focus,
-  /// including a split row's amount field.
-  bool get _textFieldFocused =>
-      _noteFocus.hasFocus ||
-      _payeeFocus.hasFocus ||
-      _splitRows.any((r) => r.focusNode.hasFocus) ||
-      _hybridLegs.any((r) => r.focusNode.hasFocus) ||
-      _changeAmountFocus.hasFocus ||
-      _foreignAmountFocus.hasFocus;
-
   @override
   void initState() {
     super.initState();
@@ -296,8 +273,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
         _noteController.text = widget.initialNote!;
       }
       if (widget.initialAmount != null) {
-        _buffer = _bufferFromMoney(widget.initialAmount!);
-        _freshAmountEntry = true;
+        _amountController.text = _bufferFromMoney(widget.initialAmount!);
       }
       // Pre-select the last-used account on a brand-new transaction, once the
       // one-shot query resolves. Still freely changeable via "Paid via", and
@@ -321,6 +297,8 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   @override
   void dispose() {
+    _amountController.dispose();
+    _amountFocus.dispose();
     _noteController.dispose();
     _noteFocus.dispose();
     _payeeController.dispose();
@@ -380,8 +358,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     setState(() {
       _type = row.type;
-      _buffer = _bufferFromMoney(row.amount);
-      _freshAmountEntry = true;
+      _amountController.text = _bufferFromMoney(row.amount);
       _accountId = row.accountId;
       _toAccountId = row.toAccountId;
       _categoryId = row.categoryId;
@@ -452,8 +429,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     setState(() {
       _type = row.type;
-      _buffer = _bufferFromMoney(row.amount);
-      _freshAmountEntry = true;
+      _amountController.text = _bufferFromMoney(row.amount);
       _accountId = row.accountId;
       _toAccountId = row.toAccountId;
       _categoryId = row.categoryId;
@@ -506,8 +482,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
     setState(() {
       _type = row.type;
-      _buffer = _bufferFromMoney(row.amount);
-      _freshAmountEntry = true;
+      _amountController.text = _bufferFromMoney(row.amount);
       _accountId = row.accountId;
       _toAccountId = row.toAccountId;
       _categoryId = row.categoryId;
@@ -532,27 +507,9 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
 
   /// The live amount. Tolerates a trailing dot while the user is mid-type.
   Money get _amount {
-    var b = _buffer;
+    var b = _amountController.text;
     if (b.endsWith('.')) b = b.substring(0, b.length - 1);
     return Money.tryParse(b) ?? const Money.zero();
-  }
-
-  // ── Keypad ────────────────────────────────────────────────────────────────
-
-  void _onKey(String k) {
-    setState(() {
-      _buffer = AmountBuffer.applyKey(
-        _buffer,
-        k,
-        freshEntry: _freshAmountEntry,
-      );
-      _freshAmountEntry = false;
-    });
-  }
-
-  void _onBackspace() {
-    _freshAmountEntry = false;
-    setState(() => _buffer = AmountBuffer.applyBackspace(_buffer));
   }
 
   // ── Pickers ───────────────────────────────────────────────────────────────
@@ -2133,7 +2090,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     // already in hand the instant Save is tapped, and a provider nothing
     // else here watches only starts loading on its first read.
     ref.watch(allAllocationsProvider);
-    final amount = _amount;
+
     // The amount always debits/credits _accountId — the source account for
     // every type, transfer included — so that's whose currency the hero
     // figure and its keypad are in. Null means the parent currency, which
@@ -2175,10 +2132,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                 // the system keyboard closes and the amount keypad returns —
                 // the two must never be on screen at once (see _textFieldFocused).
                 behavior: HitTestBehavior.opaque,
-                onTap: () {
-                  FocusScope.of(context).unfocus();
-                  setState(() => _isKeypadVisible = false);
-                },
+                onTap: () => FocusScope.of(context).unfocus(),
                 child: Column(
                   children: [
                     Padding(
@@ -2220,26 +2174,50 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                       padding: const EdgeInsets.symmetric(horizontal: 24),
                       child: FittedBox(
                         fit: BoxFit.scaleDown,
-                        child: GestureDetector(
-                          onTap: () {
-                            FocusScope.of(context).unfocus();
-                            setState(() => _isKeypadVisible = true);
-                          },
-                          child: Text(
-                            key: const Key('amountDisplay'),
-                            txCurrency == null
-                              ? MoneyFormat.symbol(amount)
-                              : MoneyFormat.symbolIn(amount, txCurrency),
-                          style: theme.textTheme.displayMedium?.copyWith(
-                            fontWeight: FontWeight.w700,
-                            color: colorForTxType(_type),
-                            fontFeatures: kTabularFigures,
+                        child: Row(
+                          mainAxisAlignment: MainAxisAlignment.center,
+                          crossAxisAlignment: CrossAxisAlignment.baseline,
+                          textBaseline: TextBaseline.alphabetic,
+                          children: [
+                          Text(
+                            txCurrency == null ? MoneyFormat.inputPrefix.trim() : txCurrency.symbol,
+                            style: theme.textTheme.displayMedium?.copyWith(
+                              fontWeight: FontWeight.w700,
+                              color: colorForTxType(_type).withValues(alpha: 0.5),
+                            ),
                           ),
-                        ),
+                          const SizedBox(width: 8),
+                          IntrinsicWidth(
+                            child: TextField(
+                              key: const Key('amountInput'),
+                              controller: _amountController,
+                              focusNode: _amountFocus,
+                              keyboardType: const TextInputType.numberWithOptions(decimal: true),
+                              inputFormatters: [
+                                FilteringTextInputFormatter.allow(RegExp(r'[0-9.]')),
+                              ],
+                              style: theme.textTheme.displayMedium?.copyWith(
+                                fontWeight: FontWeight.w700,
+                                color: colorForTxType(_type),
+                                fontFeatures: kTabularFigures,
+                              ),
+                              decoration: const InputDecoration(
+                                hintText: '0.00',
+                                border: InputBorder.none,
+                                enabledBorder: InputBorder.none,
+                                focusedBorder: InputBorder.none,
+                                filled: false,
+                                isDense: true,
+                                contentPadding: EdgeInsets.zero,
+                              ),
+                              onChanged: (_) => setState(() {}),
+                            ),
+                          ),
+                        ],
                       ),
                     ),
                   ),
-                    _selectedTagsChips(),
+                  _selectedTagsChips(),
                     const SizedBox(height: 20),
                     Expanded(
                       child: SingleChildScrollView(
@@ -2251,7 +2229,6 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
                         ),
                       ),
                     ),
-                    if (!_textFieldFocused && _isKeypadVisible) _buildKeypad(theme),
                   ],
                 ),
               ),
@@ -2597,51 +2574,7 @@ class _AddTransactionScreenState extends ConsumerState<AddTransactionScreen> {
     setState(() => _tagIds = result);
   }
 
-  Widget _buildKeypad(ThemeData theme) {
-    const keys = <String>[
-      '1', '2', '3', //
-      '4', '5', '6', //
-      '7', '8', '9', //
-      '.', '0', '<', //
-    ];
-    return Padding(
-      padding: const EdgeInsets.fromLTRB(12, 4, 12, 8),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          for (var r = 0; r < 4; r++)
-            Row(
-              children: [
-                for (var c = 0; c < 3; c++)
-                  Expanded(child: _keypadButton(theme, keys[r * 3 + c])),
-              ],
-            ),
-        ],
-      ),
-    );
-  }
 
-  Widget _keypadButton(ThemeData theme, String k) {
-    final isBackspace = k == '<';
-    return Padding(
-      padding: const EdgeInsets.all(4),
-      child: InkWell(
-        borderRadius: BorderRadius.circular(16),
-        onTap: () => isBackspace ? _onBackspace() : _onKey(k),
-        child: SizedBox(
-          height: 56,
-          child: Center(
-            child: isBackspace
-                ? Icon(
-                    Icons.backspace_outlined,
-                    color: theme.colorScheme.onSurface,
-                  )
-                : Text(k, style: theme.textTheme.titleLarge),
-          ),
-        ),
-      ),
-    );
-  }
 }
 
 enum _ReceiptSource { camera, gallery }

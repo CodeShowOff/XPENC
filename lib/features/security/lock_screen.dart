@@ -305,59 +305,54 @@ class _LockScreenState extends ConsumerState<LockScreen> {
     return PopScope(
       canPop: false,
       child: Scaffold(
-        // Fixed spacing, not flex `Spacer`s — `IntrinsicHeight` (an earlier
-        // attempt at this, GitHub #78) inflates flex children based on their
-        // flex factor rather than their actual content, which ballooned the
-        // computed height and pushed most of the keypad off-screen. `Center`
-        // inside a `minHeight: viewport` box gives the same "vertically
-        // centered when it fits" look with a real, predictable content
-        // height, and still falls back to scrolling — never clipping —
-        // if it doesn't fit at all (tiny screens, large font scale).
+        // Using CustomScrollView + SliverFillRemaining allows the layout to
+        // fill the screen using Spacer() to push the keypad down, while
+        // still falling back to scrolling cleanly on short screens (unlike
+        // IntrinsicHeight which can have flex/inflation issues).
         body: SafeArea(
-          child: LayoutBuilder(
-            builder: (context, constraints) => SingleChildScrollView(
-              child: ConstrainedBox(
-                constraints: BoxConstraints(minHeight: constraints.maxHeight),
-                child: Center(
-                  child: Padding(
-                    padding: const EdgeInsets.symmetric(vertical: 32),
-                    child: Column(
-                      mainAxisSize: MainAxisSize.min,
-                      children: [
-                        const BrandMark(size: 48),
-                        const SizedBox(height: 12),
-                        Text(
-                          AppInfo.name,
-                          style: theme.textTheme.titleLarge?.copyWith(
-                            fontWeight: FontWeight.w700,
-                          ),
+          child: CustomScrollView(
+            slivers: [
+              SliverFillRemaining(
+                hasScrollBody: false,
+                child: Padding(
+                  padding: const EdgeInsets.symmetric(vertical: 32),
+                  child: Column(
+                    children: [
+                      const Spacer(),
+                      const BrandMark(size: 48),
+                      const SizedBox(height: 12),
+                      Text(
+                        AppInfo.name,
+                        style: theme.textTheme.titleLarge?.copyWith(
+                          fontWeight: FontWeight.w700,
                         ),
-                        const SizedBox(height: 40),
-                        phraseLocked
-                            ? _buildPhraseBody(context, isFallback: true)
-                            : switch (shownMethod) {
-                                UnlockMethod.pin => _buildPinBody(context),
-                                UnlockMethod.masterPhrase => _buildPhraseBody(
-                                  context,
-                                  isFallback: false,
-                                ),
-                                UnlockMethod.totp => _buildTotpBody(context),
-                                null => const SizedBox.shrink(),
-                              },
-                        if (otherReadyMethods.isNotEmpty) ...[
-                          const SizedBox(height: 20),
-                          TextButton(
-                            onPressed: () =>
-                                _showMethodPicker(context, otherReadyMethods),
-                            child: const Text('Try another method'),
-                          ),
-                        ],
+                      ),
+                      const SizedBox(height: 24),
+                      const Spacer(),
+                      phraseLocked
+                          ? _buildPhraseBody(context, isFallback: true)
+                          : switch (shownMethod) {
+                              UnlockMethod.pin => _buildPinBody(context),
+                              UnlockMethod.masterPhrase => _buildPhraseBody(
+                                context,
+                                isFallback: false,
+                              ),
+                              UnlockMethod.totp => _buildTotpBody(context),
+                              null => const SizedBox.shrink(),
+                            },
+                      if (otherReadyMethods.isNotEmpty) ...[
+                        const SizedBox(height: 20),
+                        TextButton(
+                          onPressed: () =>
+                              _showMethodPicker(context, otherReadyMethods),
+                          child: const Text('Try another method'),
+                        ),
                       ],
-                    ),
+                    ],
                   ),
                 ),
               ),
-            ),
+            ],
           ),
         ),
       ),

@@ -57,7 +57,7 @@ class DashboardScreen extends ConsumerWidget {
 // ── Shared bits ───────────────────────────────────────────────────────────
 
 /// Horizontal page padding + a consistent gap below each section.
-const _sectionPad = EdgeInsets.fromLTRB(20, 0, 20, 24);
+const _sectionPad = EdgeInsets.fromLTRB(20, 0, 20, 12);
 const _cardRadius = 24.0;
 
 class _SectionHeader extends StatelessWidget {
@@ -70,7 +70,7 @@ class _SectionHeader extends StatelessWidget {
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     return Padding(
-      padding: EdgeInsets.fromLTRB(20, 0, trailing == null ? 20 : 8, 8),
+      padding: EdgeInsets.fromLTRB(20, 0, trailing == null ? 20 : 8, 0),
       child: Row(
         children: [
           Text(
@@ -739,7 +739,7 @@ class _AccountsStrip extends ConsumerWidget {
       data: (list) {
         if (list.isEmpty) return const SizedBox.shrink();
         return Padding(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(bottom: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -917,7 +917,7 @@ class _PersonsSection extends ConsumerWidget {
     final extra = outstanding.length - top.length;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1144,7 +1144,7 @@ class _UpcomingSection extends ConsumerWidget {
     final extra = items.length - top.length;
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1258,7 +1258,7 @@ class _BudgetsSection extends ConsumerWidget {
 
     if (progress.isEmpty) {
       return Padding(
-        padding: const EdgeInsets.only(bottom: 24),
+        padding: const EdgeInsets.only(bottom: 12),
         child: Column(
           crossAxisAlignment: CrossAxisAlignment.start,
           children: [
@@ -1281,7 +1281,7 @@ class _BudgetsSection extends ConsumerWidget {
     final rtaOn = ref.watch(rtaEnabledProvider);
 
     return Padding(
-      padding: const EdgeInsets.only(bottom: 24),
+      padding: const EdgeInsets.only(bottom: 12),
       child: Column(
         crossAxisAlignment: CrossAxisAlignment.start,
         children: [
@@ -1421,7 +1421,7 @@ class _SpendByCategorySection extends ConsumerWidget {
         );
 
         return Padding(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(bottom: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [
@@ -1488,7 +1488,7 @@ class _RecentSection extends ConsumerWidget {
       data: (list) {
         if (list.isEmpty) {
           return Padding(
-            padding: const EdgeInsets.only(bottom: 24),
+            padding: const EdgeInsets.only(bottom: 12),
             child: Column(
               crossAxisAlignment: CrossAxisAlignment.start,
               children: [
@@ -1510,7 +1510,7 @@ class _RecentSection extends ConsumerWidget {
         final top = list.take(5).toList();
 
         return Padding(
-          padding: const EdgeInsets.only(bottom: 24),
+          padding: const EdgeInsets.only(bottom: 12),
           child: Column(
             crossAxisAlignment: CrossAxisAlignment.start,
             children: [

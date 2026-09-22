@@ -7,7 +7,6 @@ import 'package:go_router/go_router.dart';
 import '../../data/providers.dart';
 import 'hold_menu_geometry.dart';
 import '../../features/add_transaction/add_transaction_choice_sheet.dart';
-import '../../features/persons/persons_screen.dart' show showAddPersonDialog;
 import '../../features/transactions/transaction_filters.dart';
 
 /// `Dashboard · slotLeft · ➕ · slotRight · More`
@@ -515,11 +514,6 @@ class _TopBar extends ConsumerWidget implements PreferredSizeWidget {
             mainAxisSize: MainAxisSize.min,
             children: [
               ..._tabActions(context, ref, currentIndex),
-              _TonalIconButton(
-                tooltip: 'Review Inbox',
-                icon: const Icon(Icons.inbox_outlined),
-                onPressed: () => context.push('/inbox'),
-              ),
             ],
           ),
           const SizedBox(width: 4),
@@ -528,9 +522,7 @@ class _TopBar extends ConsumerWidget implements PreferredSizeWidget {
     );
   }
 
-  /// Whatever's specific to the active tab, Review Inbox appended after by
-  /// the caller — see the class doc for why Inbox always gets that trailing
-  /// slot.
+  /// Whatever's specific to the active tab.
   List<Widget> _tabActions(BuildContext context, WidgetRef ref, int index) {
     switch (index) {
       case 0: // Dashboard
@@ -539,16 +531,10 @@ class _TopBar extends ConsumerWidget implements PreferredSizeWidget {
         return const [_TransactionsBarActions(), SizedBox(width: 4)];
       case 2: // Persons
         return [
-          _TonalIconButton(
+          IconButton(
             tooltip: 'Archived people',
             icon: const Icon(Icons.inventory_2_outlined),
             onPressed: () => context.push('/persons/archived'),
-          ),
-          const SizedBox(width: 4),
-          _TonalIconButton(
-            tooltip: 'Add person',
-            icon: const Icon(Icons.person_add_alt_1_outlined),
-            onPressed: () => showAddPersonDialog(context, ref),
           ),
           const SizedBox(width: 4),
         ];
@@ -598,12 +584,7 @@ class _TonalIconButton extends StatelessWidget {
 
   @override
   Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Material(
-      color: cs.secondary.withValues(alpha: 0.08),
-      shape: const CircleBorder(),
-      child: IconButton(tooltip: tooltip, icon: icon, onPressed: onPressed),
-    );
+    return IconButton(tooltip: tooltip, icon: icon, onPressed: onPressed);
   }
 }
 
