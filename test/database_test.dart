@@ -1074,8 +1074,7 @@ void main() {
     });
 
     test(
-      'settling back to zero auto-archives the person, but a fresh '
-      'person with no history yet is left alone',
+      'settling back to zero does NOT auto-archive the person since auto-archive is disabled',
       () async {
         final cash = await cashId();
         final ram = await db.addPerson('Ram');
@@ -1109,8 +1108,8 @@ void main() {
         active = await db.watchPersons().first;
         expect(
           active.map((p) => p.id),
-          isNot(contains(ram)),
-          reason: 'settled — should auto-archive out of the active list',
+          contains(ram),
+          reason: 'settled — but should remain active since auto-archive is disabled',
         );
         expect(
           active.map((p) => p.id),
@@ -1118,7 +1117,7 @@ void main() {
           reason: 'never had any history — must not be swept up too',
         );
         final archived = await db.watchArchivedPersons().first;
-        expect(archived.map((p) => p.id), contains(ram));
+        expect(archived.map((p) => p.id), isNot(contains(ram)));
       },
     );
 

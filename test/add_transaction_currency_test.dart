@@ -67,11 +67,8 @@ void main() {
       await pump(tester, initialType: TxType.expense);
       await pickAccount(tester, 'Travel');
 
-      final amountText = tester.widget<Text>(
-        find.byKey(const Key('amountDisplay')),
-      );
-      expect(amountText.data, contains(r'$'));
-      expect(amountText.data, isNot(contains('₹')));
+      expect(find.text(r'$'), findsOneWidget);
+      expect(find.text('₹'), findsNothing);
 
       await unmount(tester);
     },

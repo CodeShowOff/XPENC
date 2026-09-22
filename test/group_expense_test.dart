@@ -279,7 +279,7 @@ void main() {
   group('auto-archiving a settled group', () {
     test(
       'once every member repays in full, the group and its members '
-      'auto-archive; the expense history that made it "settled" stays',
+      'do NOT auto-archive (auto-archive disabled); the expense history that made it "settled" stays',
       () async {
         final cash = await cashId();
         await seedCash(Money.fromRupees(5000));
@@ -320,15 +320,15 @@ void main() {
         final activePersons = await db.watchPersons().first;
         expect(
           activePersons.map((p) => p.id),
-          isNot(anyOf(contains(ram), contains(shyam))),
+          containsAll([ram, shyam]),
         );
         final archivedPersons = await db.watchArchivedPersons().first;
-        expect(archivedPersons.map((p) => p.id), containsAll([ram, shyam]));
+        expect(archivedPersons.map((p) => p.id), isNot(anyOf(contains(ram), contains(shyam))));
 
         groups = await db.watchGroups().first;
-        expect(groups.map((g) => g.id), isNot(contains(groupId)));
+        expect(groups.map((g) => g.id), contains(groupId));
         final archivedGroups = await db.watchArchivedGroups().first;
-        expect(archivedGroups.map((g) => g.id), contains(groupId));
+        expect(archivedGroups.map((g) => g.id), isNot(contains(groupId)));
 
         // The expense itself is history, not undone by the settlement.
         final expense = await (db.select(

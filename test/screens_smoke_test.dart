@@ -1028,7 +1028,8 @@ void main() {
     expect(tester.takeException(), isNull);
     expect(find.text('XPENC'), findsOneWidget);
     expect(find.text('Version ${AppInfo.versionLabel}'), findsOneWidget);
-    expect(find.text('@${AppInfo.githubHandle}'), findsOneWidget);
+    expect(find.text(AppInfo.developer), findsOneWidget);
+    expect(find.text(AppInfo.developerRole), findsOneWidget);
     if (AppInfo.linkedinHandle.isNotEmpty) {
       expect(find.text('/in/${AppInfo.linkedinHandle}'), findsOneWidget);
     }

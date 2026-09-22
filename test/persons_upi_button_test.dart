@@ -75,13 +75,10 @@ void main() {
       expect(find.text('Pay'), findsNothing);
       expect(findButton('UPI')!.onPressed, isNull);
       expect(findButton('PayPal')!.onPressed, isNull);
-      expect(findButton('Venmo')!.onPressed, isNull);
       expect(findButton('Cash App')!.onPressed, isNull);
-      expect(findButton('Revolut')!.onPressed, isNull);
       expect(
         find.text(
-          'Add your UPI ID, PayPal.me ID, Venmo username, Cashtag and '
-          'Revolut username in Settings to request money',
+          'Add your UPI ID, PayPal.me ID and Cashtag in Settings to request money',
         ),
         findsOneWidget,
       );

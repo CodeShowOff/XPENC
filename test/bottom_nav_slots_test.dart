@@ -8,8 +8,8 @@ void main() {
   setUp(() => db = AppDatabase(NativeDatabase.memory()));
   tearDown(() => db.close());
 
-  test('defaults to transactions,persons', () async {
-    expect((await db.getSettings()).bottomNavSlots, 'transactions,persons');
+  test('defaults to persons,shopping', () async {
+    expect((await db.getSettings()).bottomNavSlots, 'persons,shopping');
   });
 
   test('setBottomNavSlots persists a valid pair', () async {
