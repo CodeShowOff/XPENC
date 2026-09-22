@@ -193,32 +193,34 @@ class _BigPinKeypadState extends State<BigPinKeypad> {
 
   @override
   Widget build(BuildContext context) {
-    return LayoutBuilder(
-      builder: (context, constraints) {
-        // Circles as big as the available width allows, capped so they stay
-        // reasonable on a tablet — not stretched to fill the whole screen.
-        const spacing = 12.0;
-        final diameter = ((constraints.maxWidth - spacing * 2) / 3).clamp(
-          56.0,
-          92.0,
-        );
-        return Column(
-          mainAxisSize: MainAxisSize.min,
-          children: [
-            for (var r = 0; r < 4; r++)
-              Padding(
-                padding: EdgeInsets.only(bottom: r == 3 ? 0 : spacing),
-                child: Row(
-                  mainAxisAlignment: MainAxisAlignment.spaceBetween,
-                  children: [
-                    for (var c = 0; c < 3; c++)
-                      _key(context, _keys[r * 3 + c], diameter),
-                  ],
-                ),
-              ),
-          ],
-        );
-      },
+    // Circles as big as the available width allows, capped so they stay
+    // reasonable on a tablet — not stretched to fill the whole screen.
+    const spacing = 12.0;
+    // We use a maximum of 400 for width if we're in a constrained space, 
+    // or just use MediaQuery width if available. We subtract padding.
+    final screenWidth = MediaQuery.of(context).size.width;
+    final availableWidth = screenWidth < 400 ? screenWidth - 32 : 400.0;
+    
+    final diameter = ((availableWidth - spacing * 2) / 3).clamp(
+      56.0,
+      92.0,
+    );
+    
+    return Column(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        for (var r = 0; r < 4; r++)
+          Padding(
+            padding: EdgeInsets.only(bottom: r == 3 ? 0 : spacing),
+            child: Row(
+              mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              children: [
+                for (var c = 0; c < 3; c++)
+                  _key(context, _keys[r * 3 + c], diameter),
+              ],
+            ),
+          ),
+      ],
     );
   }
 
