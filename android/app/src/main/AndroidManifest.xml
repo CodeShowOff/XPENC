@@ -1,11 +1,5 @@
 <manifest xmlns:android="http://schemas.android.com/apk/res/android"
     xmlns:tools="http://schemas.android.com/tools">
-    <!-- No SMS permissions — deliberately. READ_SMS made Google Play Protect
-         block direct APK installs (users had to pause protection to install),
-         so bank-SMS auto-capture is paused. The capture pipeline still exists
-         behind the MessageSource interface; do NOT re-add READ_SMS here without
-         re-testing sideload install on a Play-Protect-enabled device.
-         test/native_channel_test.dart fails the build if this returns. -->
     <uses-permission android:name="android.permission.POST_NOTIFICATIONS"/>
     <!-- WorkManager (pulled in transitively by flutter_local_notifications)
          declares this by default for network-constrained jobs. XPENC is
@@ -80,20 +74,6 @@
                  app — see BalanceWidgetProvider and home_widget_service.dart. -->
             <intent-filter>
                 <action android:name="es.antonborri.home_widget.action.LAUNCH"/>
-            </intent-filter>
-            <!-- Puts XPENC in the system Share sheet for plain text (a bank
-                 SMS, see share_intake.dart and GitHub #26) and for images (a
-                 PhonePe/GPay/Paytm "payment successful" screenshot, OCR'd
-                 on-device with Tesseract — see message_capture/ocr_service.dart,
-                 parser/screenshot_parser.dart and GitHub #25/#57). Both needing
-                 no extra Android permission. Two <data> tags in one filter,
-                 not two filters: Android unions them, matching either mime
-                 type. -->
-            <intent-filter>
-                <action android:name="android.intent.action.SEND"/>
-                <category android:name="android.intent.category.DEFAULT"/>
-                <data android:mimeType="text/plain"/>
-                <data android:mimeType="image/*"/>
             </intent-filter>
         </activity>
 

@@ -19,8 +19,6 @@ import 'package:xpenc/features/calendar/calendar_screen.dart';
 import 'package:xpenc/features/categories/categories_screen.dart';
 import 'package:xpenc/features/data_export/backup_screen.dart';
 import 'package:xpenc/features/data_export/download_data_screen.dart';
-import 'package:xpenc/features/message_capture/message_capture_screen.dart';
-import 'package:xpenc/features/message_capture/review_inbox_screen.dart';
 import 'package:xpenc/features/more/more_screen.dart';
 import 'package:xpenc/features/onboarding/onboarding_screen.dart';
 import 'package:xpenc/features/reports/account_reports_screen.dart';
@@ -1056,18 +1054,6 @@ void main() {
   testWidgets('Calendar renders', (tester) async {
     await tester.runAsync(seed);
     await pump(tester, const CalendarScreen());
-    expect(tester.takeException(), isNull);
-    await unmount(tester);
-  });
-
-  testWidgets('Review Inbox renders empty', (tester) async {
-    await pump(tester, const ReviewInboxScreen());
-    expect(tester.takeException(), isNull);
-    await unmount(tester);
-  });
-
-  testWidgets('Message Capture settings render', (tester) async {
-    await pump(tester, const MessageCaptureScreen());
     expect(tester.takeException(), isNull);
     await unmount(tester);
   });

@@ -15,7 +15,7 @@ import '../../data/database.dart';
 import '../../data/providers.dart';
 import '../../data/tables.dart';
 import '../budgets/ready_to_assign_screen.dart';
-import '../message_capture/review_inbox_screen.dart';
+
 import '../reports/chart_widgets.dart';
 import 'sparkline.dart';
 
@@ -25,7 +25,6 @@ class DashboardScreen extends ConsumerWidget {
   const DashboardScreen({super.key});
 
   static const _sections = <Widget>[
-    _ReviewCardsSection(),
     _NetWorthCard(),
     _ThisMonthCard(),
     _AccountsStrip(),
@@ -149,93 +148,6 @@ class _InlineError extends StatelessWidget {
   }
 }
 
-// ── 0. Detected transactions (SMS review cards) ───────────────────────────
-
-/// Surfaces freshly detected transactions the moment the app opens, so the
-/// user can review them without hunting for the inbox. Vanishes when there is
-/// nothing pending (including while loading or on error).
-class _ReviewCardsSection extends ConsumerWidget {
-  const _ReviewCardsSection();
-
-  @override
-  Widget build(BuildContext context, WidgetRef ref) {
-    final theme = Theme.of(context);
-    final cards = ref.watch(pendingCardsProvider).valueOrNull;
-    if (cards == null || cards.isEmpty) return const SizedBox.shrink();
-
-    final shown = cards.take(3).toList();
-    final extra = cards.length - shown.length;
-
-    return Padding(
-      padding: _sectionPad,
-      child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
-        children: [
-          Row(
-            children: [
-              Text(
-                'Detected transactions',
-                style: theme.textTheme.titleMedium?.copyWith(
-                  fontWeight: FontWeight.w700,
-                ),
-              ),
-              const SizedBox(width: 8),
-              _CountBadge(cards.length),
-              const Spacer(),
-              TextButton(
-                onPressed: () => context.push('/inbox'),
-                child: const Text('See all'),
-              ),
-            ],
-          ),
-          const SizedBox(height: 4),
-          for (var i = 0; i < shown.length; i++) ...[
-            if (i > 0) const SizedBox(height: 12),
-            PendingCard(pending: shown[i]),
-          ],
-          if (extra > 0)
-            Align(
-              alignment: Alignment.centerLeft,
-              child: TextButton(
-                onPressed: () => context.push('/inbox'),
-                child: Text('View $extra more'),
-              ),
-            ),
-        ],
-      ),
-    );
-  }
-}
-
-/// A small filled pill showing how many transactions are waiting.
-class _CountBadge extends StatelessWidget {
-  const _CountBadge(this.count);
-
-  final int count;
-
-  @override
-  Widget build(BuildContext context) {
-    final theme = Theme.of(context);
-    return Container(
-      constraints: const BoxConstraints(minWidth: 20),
-      height: 20,
-      padding: const EdgeInsets.symmetric(horizontal: 6),
-      alignment: Alignment.center,
-      decoration: BoxDecoration(
-        color: theme.colorScheme.primary,
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Text(
-        '$count',
-        style: theme.textTheme.labelSmall?.copyWith(
-          color: theme.colorScheme.onPrimary,
-          fontWeight: FontWeight.w700,
-          fontFeatures: kTabularFigures,
-        ),
-      ),
-    );
-  }
-}
 
 // ── 1. Net worth ──────────────────────────────────────────────────────────
 

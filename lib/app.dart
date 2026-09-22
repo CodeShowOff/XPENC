@@ -13,8 +13,6 @@ import 'core/theme/app_theme.dart';
 import 'core/widgets/error_view.dart';
 import 'core/widgets/money_text.dart';
 import 'data/providers.dart';
-import 'features/message_capture/parser/bank_message.dart';
-import 'features/message_capture/share_intake.dart';
 import 'features/security/lock_screen.dart';
 
 class XpencApp extends ConsumerStatefulWidget {
@@ -66,7 +64,6 @@ class _XpencAppState extends ConsumerState<XpencApp>
 
     final homeWidget = ref.read(homeWidgetServiceProvider);
     homeWidget.init();
-    ref.read(shareIntakeServiceProvider).init(_handleShareResult);
     final netWorth = await ref.read(netWorthProvider.future).catchError((_) {
       return const Money.zero();
     });
@@ -92,7 +89,6 @@ class _XpencAppState extends ConsumerState<XpencApp>
     await notifications.checkBudgets();
 
     await _runRecurring();
-    await _scanMessages();
     await _runAutoBackup();
   }
 
@@ -132,7 +128,6 @@ class _XpencAppState extends ConsumerState<XpencApp>
       _maybeLockAfterTimeout();
       _pausedAt = null;
       _runRecurring();
-      _scanMessages();
       _runAutoBackup();
       // Restores the shortcut if the system cleared it under memory
       // pressure while `ongoing: true` normally keeps a swipe from doing so.
@@ -195,51 +190,6 @@ class _XpencAppState extends ConsumerState<XpencApp>
     await ref.read(backupServiceProvider).runAutoBackupIfDue();
   }
 
-  Future<void> _scanMessages() async {
-    final result = await ref.read(captureServiceProvider).scan();
-    if (!result.didRun) return;
-
-    // Only ping about cards that still need the user. Auto-filled ones already
-    // posted and are visible on the dashboard.
-    final needsReview = result.ingested - result.autoFilled;
-    if (needsReview > 0) {
-      await ref.read(notificationServiceProvider).notifyDetected(needsReview);
-    }
-  }
-
-  /// The user just shared a message into XPENC from another app — see
-  /// `ShareIntakeService`. Ingested lands straight in the Review Inbox,
-  /// since that is exactly where "filter it and add as expense or income"
-  /// already happens; anything else gets a plain-language reason instead of
-  /// silently doing nothing with a message the user deliberately picked.
-  void _handleShareResult(ShareIntakeResult result) {
-    switch (result) {
-      case ShareIntakeIngested():
-        appRouter.go('/inbox');
-      case ShareIntakeDuplicate():
-        showAppSnackBar('Already in your Review Inbox');
-      case ShareIntakeRejected(:final reason, :final recognizedText):
-        showAppSnackBar(
-          "Couldn't find a transaction in that message"
-          '${_rejectReasonHint(reason)}',
-          action: recognizedText == null
-              ? null
-              : SnackBarAction(
-                  label: 'View text',
-                  onPressed: () => showRecognizedTextDialog(recognizedText),
-                ),
-        );
-    }
-  }
-
-  String _rejectReasonHint(RejectReason reason) => switch (reason) {
-    RejectReason.otp => ' — looks like an OTP.',
-    RejectReason.promotional => ' — looks promotional.',
-    RejectReason.balanceOnly => ' — no transaction, just a balance.',
-    RejectReason.declined => ' — the payment was declined.',
-    RejectReason.noAmount => ' — no amount found.',
-    RejectReason.noDirection || RejectReason.notATransaction => '.',
-  };
 
   @override
   Widget build(BuildContext context) {

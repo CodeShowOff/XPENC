@@ -58,17 +58,6 @@ void main() {
     await reopened.close();
   });
 
-  test(
-    'the v28 sourceImagePath column (screenshot capture, GitHub #25) survives '
-    'a rolled-back re-open without "duplicate column name"',
-    () async {
-      final file = await buildRolledBackDatabase(27);
-
-      final reopened = AppDatabase(NativeDatabase(file));
-      await expectLater(reopened.select(reopened.pendingTxns).get(), completes);
-      await reopened.close();
-    },
-  );
 
   test('the v29 hideAmounts column (top-bar eye icon) survives a rolled-back '
       're-open without "duplicate column name"', () async {

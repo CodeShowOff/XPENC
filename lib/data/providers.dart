@@ -9,9 +9,6 @@ import '../core/security/unlock_method.dart';
 import '../core/theme/font_options.dart';
 import '../core/theme/theme_preset.dart';
 import '../features/data_export/backup_service.dart';
-import '../features/message_capture/capture_service.dart';
-import '../features/message_capture/message_source.dart';
-import '../features/message_capture/share_intake.dart';
 import '../features/transactions/transaction_filters.dart';
 import 'database.dart';
 import 'tables.dart';
@@ -1033,55 +1030,16 @@ final expenseReminderProvider = Provider<ExpenseReminderSettings>((ref) {
   );
 });
 
-// ── Message auto-capture ────────────────────────────────────────────────────
 
-/// Capture is paused: the SMS source was removed in 1.1.0 because Google Play
-/// Protect blocks direct-download APKs that request SMS permissions. The
-/// pipeline behind this provider (parser, dedupe, Review Inbox) is intact —
-/// swap in a Play-compliant source here when capture returns.
-final messageSourceProvider = Provider<MessageSource>(
-  (ref) => const NullMessageSource(),
-);
 
-final captureServiceProvider = Provider<CaptureService>(
-  (ref) => CaptureService(
-    db: ref.watch(dbProvider),
-    source: ref.watch(messageSourceProvider),
-  ),
-);
 
-final shareIntakeServiceProvider = Provider<ShareIntakeService>(
-  (ref) => ShareIntakeService(db: ref.watch(dbProvider)),
-);
 
-/// Cards awaiting review, plus auto-filled ones shown for information.
-final pendingCardsProvider = StreamProvider<List<PendingTxnRow>>(
-  (ref) => ref.watch(dbProvider).watchPendingCards(),
-);
 
-final pendingCountProvider = Provider<int>(
-  (ref) => ref.watch(pendingCardsProvider).valueOrNull?.length ?? 0,
-);
 
-final allPendingProvider = StreamProvider<List<PendingTxnRow>>(
-  (ref) => ref.watch(dbProvider).watchAllPendingTxns(),
-);
 
-final pendingOcrCorrectionsProvider = StreamProvider<List<OcrCorrectionRow>>(
-  (ref) => ref.watch(dbProvider).watchPendingOcrCorrections(),
-);
 
-final sentOcrCorrectionsProvider = StreamProvider<List<OcrCorrectionRow>>(
-  (ref) => ref.watch(dbProvider).watchSentOcrCorrections(),
-);
 
-final merchantRulesProvider = StreamProvider<List<MerchantRuleRow>>(
-  (ref) => ref.watch(dbProvider).watchMerchantRules(),
-);
 
-final senderRulesProvider = StreamProvider<List<SenderRuleRow>>(
-  (ref) => ref.watch(dbProvider).watchSenderRules(),
-);
 
 // ── Notifications ───────────────────────────────────────────────────────────
 

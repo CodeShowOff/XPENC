@@ -52,7 +52,6 @@ void main() {
       budgetStartDay: 1,
       onboarded: true,
       autoApprove: false,
-      messageCaptureEnabled: false,
       notificationsEnabled: true,
       themeName: 'system',
       showCurrencySymbol: true,

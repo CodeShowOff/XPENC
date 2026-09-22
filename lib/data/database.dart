@@ -11,8 +11,6 @@ import '../core/money.dart';
 import '../core/security/passcode.dart';
 import '../core/security/totp.dart';
 import '../core/security/unlock_method.dart';
-import '../features/message_capture/parser/bank_message.dart';
-import '../features/message_capture/parser/message_parser.dart';
 import 'currency_conversion.dart';
 import 'tables.dart';
 
@@ -148,9 +146,6 @@ typedef CombinedStatementLine = ({
     GroupExpenseShares,
     Reminders,
     Settings,
-    PendingTxns,
-    MerchantRules,
-    SenderRules,
     BudgetAlerts,
     RecurringRules,
     Tags,
@@ -166,7 +161,6 @@ typedef CombinedStatementLine = ({
     ShoppingItems,
     BackupRecords,
     Allocations,
-    OcrCorrections,
     CreditCardDetails,
     CurrencyRates,
     CategoryTemplates,
@@ -198,25 +192,18 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 71;
+  int get schemaVersion => 72;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
     onCreate: (m) async {
       await m.createAll();
       await _seed();
-      await _seedSenderRules();
     },
     onUpgrade: (m, from, to) async {
       if (from < 2) {
-        await m.createTable(pendingTxns);
-        await m.createTable(merchantRules);
-        await m.createTable(senderRules);
         await m.createTable(budgetAlerts);
-        await _addColumnIfMissing(m, settings, settings.messageCaptureEnabled);
-        await _addColumnIfMissing(m, settings, settings.lastMessageScanAt);
         await _addColumnIfMissing(m, settings, settings.notificationsEnabled);
-        await _seedSenderRules();
       }
       if (from < 3) {
         await _addColumnIfMissing(m, transactions, transactions.personId);
@@ -347,13 +334,11 @@ class AppDatabase extends _$AppDatabase {
         await _addColumnIfMissing(m, settings, settings.quickAddAccountId);
       }
       if (from < 28) {
-        await _addColumnIfMissing(m, pendingTxns, pendingTxns.sourceImagePath);
       }
       if (from < 29) {
         await _addColumnIfMissing(m, settings, settings.hideAmounts);
       }
       if (from < 30) {
-        await m.createTable(ocrCorrections);
       }
       if (from < 31) {
         await _addColumnIfMissing(m, settings, settings.pinTimeoutMinutes);
@@ -665,6 +650,14 @@ class AppDatabase extends _$AppDatabase {
         // Importing a phone number + photo from "Pick from contacts" when
         // adding a person.
         await _addColumnIfMissing(m, persons, persons.photoPath);
+      }
+      if (from < 72) {
+        try {
+          await customStatement('DROP TABLE pending_txns');
+          await customStatement('DROP TABLE ocr_corrections');
+          await customStatement('DROP TABLE merchant_rules');
+          await customStatement('DROP TABLE sender_rules');
+        } catch (_) {}
       }
     },
     beforeOpen: (details) async {
@@ -999,14 +992,6 @@ class AppDatabase extends _$AppDatabase {
     );
   }
 
-  Future<void> _seedSenderRules() async {
-    for (final r in kSeedSenderRules) {
-      await into(senderRules).insert(
-        SenderRulesCompanion.insert(senderPattern: r.pattern, bankName: r.bank),
-        mode: InsertMode.insertOrIgnore,
-      );
-    }
-  }
 
   // ── Seed ──────────────────────────────────────────────────────────────────
 
@@ -1095,8 +1080,6 @@ class AppDatabase extends _$AppDatabase {
   /// established, so foreign keys never reject a delete partway through.
   Future<void> clearAllData() => transaction(() async {
     await delete(budgetAlerts).go();
-    await delete(pendingTxns).go();
-    await delete(merchantRules).go();
     await delete(reminders).go();
     await delete(personEntries).go();
     await delete(budgets).go();
@@ -1646,9 +1629,6 @@ class AppDatabase extends _$AppDatabase {
       await (update(reminders)..where((r) => r.transactionId.equals(id))).write(
         const RemindersCompanion(transactionId: Value(null)),
       );
-      await (update(pendingTxns)
-            ..where((t) => t.createdTransactionId.equals(id)))
-          .write(const PendingTxnsCompanion(createdTransactionId: Value(null)));
       // Deleting a hybrid-payment group's anchor leg must not orphan the
       // other legs' foreign key — ungroup them instead. They stay exactly
       // as valid, ordinary transactions on their own.
@@ -3128,12 +3108,6 @@ class AppDatabase extends _$AppDatabase {
     if (reminder != null) {
       throw ArgumentError('A reminder still points at this account.');
     }
-    final rule = await (select(
-      merchantRules,
-    )..where((r) => r.accountId.equals(id))).getSingleOrNull();
-    if (rule != null) {
-      throw ArgumentError('A merchant rule still points at this account.');
-    }
     final recurring = await (select(
       recurringRules,
     )..where((r) => r.accountId.equals(id))).getSingleOrNull();
@@ -4258,30 +4232,8 @@ class AppDatabase extends _$AppDatabase {
     return posted;
   }
 
-  // ── Message auto-capture ──────────────────────────────────────────────────
+  // ── General Lookup (Formerly under Message auto-capture) ──
 
-  /// UPI commonly fires **two** messages for one payment (bank + app). Without
-  /// this window every UPI spend would be booked twice.
-  static const _nearDuplicateWindow = Duration(minutes: 5);
-
-  /// Identity of the exact same message, so re-scanning the inbox is idempotent.
-  static String dedupeKeyFor(RawMessage m) {
-    final minute = DateTime(
-      m.receivedAt.year,
-      m.receivedAt.month,
-      m.receivedAt.day,
-      m.receivedAt.hour,
-      m.receivedAt.minute,
-    );
-    final body = m.body.replaceAll(RegExp(r'\s+'), ' ').trim().toLowerCase();
-    return '${m.sender.toUpperCase()}|${minute.toIso8601String()}|${body.hashCode}';
-  }
-
-  /// True whenever a [PersonEntries] row is the one that posted this
-  /// transaction — a `personOut`/`personIn` movement always is, and so is a
-  /// repayment marked to count as income (see [addPersonEntry]), even though
-  /// its own [TransactionRow.type] reads as ordinary [TxType.income]. Editing
-  /// either directly here would desync the person's ledger from the money.
   Future<bool> isPersonLinkedTransaction(int transactionId) async {
     final owner = await (select(
       personEntries,
@@ -4298,9 +4250,6 @@ class AppDatabase extends _$AppDatabase {
   Stream<AccountRow?> watchAccount(int id) =>
       (select(accounts)..where((a) => a.id.equals(id))).watchSingleOrNull();
 
-  Future<PendingTxnRow?> pendingById(int id) =>
-      (select(pendingTxns)..where((t) => t.id.equals(id))).getSingleOrNull();
-
   Future<CategoryRow?> categoryById(int id) =>
       (select(categories)..where((c) => c.id.equals(id))).getSingleOrNull();
 
@@ -4310,360 +4259,8 @@ class AppDatabase extends _$AppDatabase {
             ..limit(1))
           .getSingleOrNull();
 
-  /// A second message describing the same payment.
-  Future<bool> _isNearDuplicate(ParsedMessage p, DateTime at) async {
-    final from = at.subtract(_nearDuplicateWindow);
-    final to = at.add(_nearDuplicateWindow);
-
-    final rows =
-        await (select(pendingTxns)..where(
-              (t) =>
-                  t.receivedAt.isBetweenValues(from, to) &
-                  t.status.equalsValue(PendingStatus.dismissed).not(),
-            ))
-            .get();
-
-    for (final r in rows) {
-      if (r.parsedAmount != p.amount) continue;
-      if (r.parsedDirection != p.direction) continue;
-
-      // A matching reference is conclusive.
-      if (p.reference != null && r.parsedRef == p.reference) return true;
-
-      // Same amount, same direction, same account, minutes apart.
-      if (r.parsedAccountHint == p.accountHint) return true;
-
-      // One payment, two senders: the bank names the account, the UPI wallet
-      // (PhonePe/GPay) usually names neither an account nor the same reference.
-      // Treat an amount+direction match where either side lacks an account as a
-      // suspected duplicate. It is only *flagged*, never dropped — the card
-      // still appears in the inbox with a "Not a duplicate" action, and a
-      // flagged card can never be auto-approved.
-      if (p.accountHint == null || r.parsedAccountHint == null) return true;
-    }
-    return false;
-  }
-
-  /// Store a parsed message as a review card. Returns the row id, or `null`
-  /// when the exact message was already ingested (idempotent re-scan).
-  ///
-  /// [sourceImagePath] is set only for a shared screenshot (see
-  /// `MessageSourceKind.screenshot`) — the caller has already copied it into
-  /// permanent app storage, so a `null` return here (exact duplicate) means
-  /// the caller is responsible for deleting that now-orphaned copy.
-  Future<int?> ingestMessage(
-    RawMessage msg,
-    ParsedMessage parsed, {
-    String? sourceImagePath,
-  }) {
-    return transaction(() async {
-      final key = dedupeKeyFor(msg);
-      final seen = await (select(
-        pendingTxns,
-      )..where((t) => t.dedupeKey.equals(key))).getSingleOrNull();
-      if (seen != null) return null;
-
-      final matched = parsed.accountHint == null
-          ? null
-          : await accountByLast4(parsed.accountHint!);
-
-      final duplicate = await _isNearDuplicate(parsed, msg.receivedAt);
-
-      return into(pendingTxns).insert(
-        PendingTxnsCompanion.insert(
-          source: msg.source,
-          rawBody: msg.body,
-          sender: msg.sender,
-          receivedAt: msg.receivedAt,
-          dedupeKey: key,
-          parsedAmount: Value(parsed.amount),
-          parsedDirection: Value(parsed.direction),
-          parsedAccountHint: Value(parsed.accountHint),
-          parsedMerchant: Value(parsed.merchant),
-          parsedRef: Value(parsed.reference),
-          parsedBalance: Value(parsed.availableBalance),
-          confidence: Value(parsed.confidence),
-          matchedAccountId: Value(matched?.id),
-          sourceImagePath: Value(sourceImagePath),
-          status: Value(
-            duplicate ? PendingStatus.duplicate : PendingStatus.pending,
-          ),
-        ),
-      );
-    });
-  }
-
-  static TxType txTypeFor(TxDirection d) =>
-      d == TxDirection.debit ? TxType.expense : TxType.income;
-
-  /// Post a reviewed card to the ledger.
-  ///
-  /// [autoFilled] marks it as machine-decided so the card still shows the user
-  /// what happened, with an Undo.
-  ///
-  /// [payee] lets the review sheet post the user's *edited* payee instead of
-  /// whatever was auto-extracted — falls back to [PendingTxnRow.parsedMerchant]
-  /// when not given (the auto-fill path never overrides it). [learnMerchantRule]
-  /// still keys off whichever string actually gets posted, so a corrected OCR
-  /// misread is what gets learned, not the misread itself.
-  Future<int> approvePending(
-    int pendingId, {
-    required int categoryId,
-    required int accountId,
-    bool autoFilled = false,
-    int? appliedRuleId,
-    bool learnMerchantRule = false,
-    String? payee,
-  }) {
-    return transaction(() async {
-      final p = await (select(
-        pendingTxns,
-      )..where((t) => t.id.equals(pendingId))).getSingle();
-      if (p.parsedAmount == null || p.parsedDirection == null) {
-        throw ArgumentError('This message has no amount or direction to post.');
-      }
-      if (p.createdTransactionId != null) {
-        throw ArgumentError('This card was already posted.');
-      }
-
-      final resolvedPayee = payee ?? p.parsedMerchant;
-
-      final txId = await addTransaction(
-        type: txTypeFor(p.parsedDirection!),
-        amount: p.parsedAmount!,
-        accountId: accountId,
-        categoryId: categoryId,
-        date: p.receivedAt,
-        note: p.parsedMerchant,
-        payee: resolvedPayee,
-        imagePath: p.sourceImagePath,
-      );
-
-      await (update(pendingTxns)..where((t) => t.id.equals(pendingId))).write(
-        PendingTxnsCompanion(
-          status: Value(
-            autoFilled ? PendingStatus.autoFilled : PendingStatus.approved,
-          ),
-          matchedAccountId: Value(accountId),
-          createdTransactionId: Value(txId),
-          appliedRuleId: Value(appliedRuleId),
-        ),
-      );
-
-      if (learnMerchantRule && resolvedPayee != null) {
-        await upsertMerchantRule(
-          pattern: resolvedPayee,
-          categoryId: categoryId,
-          accountId: accountId,
-        );
-      }
-      return txId;
-    });
-  }
-
-  /// Undo must **reverse the posted transaction**, not merely hide the card.
-  Future<void> undoPending(int pendingId) {
-    return transaction(() async {
-      final p = await (select(
-        pendingTxns,
-      )..where((t) => t.id.equals(pendingId))).getSingle();
-      final txId = p.createdTransactionId;
-
-      // `deleteTransaction` clears this reference itself, but drop it here too
-      // so the card is back to `pending` even if there was nothing to delete.
-      await (update(pendingTxns)..where((t) => t.id.equals(pendingId))).write(
-        const PendingTxnsCompanion(
-          status: Value(PendingStatus.pending),
-          createdTransactionId: Value(null),
-          appliedRuleId: Value(null),
-        ),
-      );
-
-      if (txId != null) await deleteTransaction(txId);
-    });
-  }
-
-  Future<void> setPendingStatus(int id, PendingStatus status) =>
-      (update(pendingTxns)..where((t) => t.id.equals(id))).write(
-        PendingTxnsCompanion(status: Value(status)),
-      );
-
-  /// Cards the user should see: awaiting a category, or auto-filled for info.
-  Stream<List<PendingTxnRow>> watchPendingCards() =>
-      (select(pendingTxns)
-            ..where(
-              (t) =>
-                  t.status.equalsValue(PendingStatus.pending) |
-                  t.status.equalsValue(PendingStatus.autoFilled),
-            )
-            ..orderBy([
-              (t) => OrderingTerm(
-                expression: t.receivedAt,
-                mode: OrderingMode.desc,
-              ),
-            ]))
-          .watch();
-
-  Stream<List<PendingTxnRow>> watchAllPendingTxns() =>
-      (select(pendingTxns)..orderBy([
-            (t) =>
-                OrderingTerm(expression: t.receivedAt, mode: OrderingMode.desc),
-          ]))
-          .watch();
-
-  // ── OCR corrections ────────────────────────────────────────────────────
-
-  Future<int> addOcrCorrection({
-    required String appLabel,
-    String? country,
-    required String rawOcrText,
-    required bool wasCorrect,
-    String? extractedAmount,
-    String? extractedDirection,
-    String? extractedPayee,
-    String? extractedReference,
-    String? correctedAmount,
-    String? correctedDirection,
-    String? correctedPayee,
-    String? correctedReference,
-  }) => into(ocrCorrections).insert(
-    OcrCorrectionsCompanion.insert(
-      appLabel: appLabel,
-      country: Value(country),
-      rawOcrText: rawOcrText,
-      wasCorrect: wasCorrect,
-      extractedAmount: Value(extractedAmount),
-      extractedDirection: Value(extractedDirection),
-      extractedPayee: Value(extractedPayee),
-      extractedReference: Value(extractedReference),
-      correctedAmount: Value(correctedAmount),
-      correctedDirection: Value(correctedDirection),
-      correctedPayee: Value(correctedPayee),
-      correctedReference: Value(correctedReference),
-    ),
-  );
-
-  Stream<List<OcrCorrectionRow>> watchPendingOcrCorrections() =>
-      (select(ocrCorrections)
-            ..where((t) => t.sentAt.isNull())
-            ..orderBy([
-              (t) => OrderingTerm(
-                expression: t.createdAt,
-                mode: OrderingMode.desc,
-              ),
-            ]))
-          .watch();
-
-  Stream<List<OcrCorrectionRow>> watchSentOcrCorrections() =>
-      (select(ocrCorrections)
-            ..where((t) => t.sentAt.isNotNull())
-            ..orderBy([
-              (t) =>
-                  OrderingTerm(expression: t.sentAt, mode: OrderingMode.desc),
-            ]))
-          .watch();
-
-  Future<void> markOcrCorrectionsSent(List<int> ids) async {
-    if (ids.isEmpty) return;
-    await (update(ocrCorrections)..where((t) => t.id.isIn(ids))).write(
-      OcrCorrectionsCompanion(sentAt: Value(DateTime.now())),
-    );
-  }
-
-  Future<void> deleteOcrCorrection(int id) =>
-      (delete(ocrCorrections)..where((t) => t.id.equals(id))).go();
-
-  // ── Merchant rules (what Auto-Approve is allowed to fire from) ────────────
-
-  static String _normalizeMerchant(String s) =>
-      s.trim().toLowerCase().replaceAll(RegExp(r'\s+'), ' ');
-
-  /// The ONLY rule lookup Auto-Approve is allowed to use. **Exact match only.**
-  ///
-  /// A substring fallback used to live here and it was dangerous: a learned rule
-  /// for `OLA` matched `GOLA SNACKS`, so an unrelated purchase was silently
-  /// auto-booked under Transport. Auto-Approve promises it never guesses — a
-  /// near-miss must fall through to the review inbox, which costs one tap.
-  Future<MerchantRuleRow?> findMerchantRule(String? merchant) async {
-    if (merchant == null || merchant.trim().isEmpty) return null;
-    final needle = _normalizeMerchant(merchant);
-    final rows = await select(merchantRules).get();
-    for (final r in rows) {
-      if (_normalizeMerchant(r.matchPattern) == needle) return r;
-    }
-    return null;
-  }
-
-  /// Fuzzy lookup for *suggesting* a category to the user. Never auto-posts.
-  /// Requires a reasonably long pattern so short names can't swallow long ones.
-  Future<MerchantRuleRow?> suggestMerchantRule(String? merchant) async {
-    final exact = await findMerchantRule(merchant);
-    if (exact != null) return exact;
-    if (merchant == null) return null;
-
-    final needle = _normalizeMerchant(merchant);
-    if (needle.length < 4) return null;
-
-    for (final r in await select(merchantRules).get()) {
-      final p = _normalizeMerchant(r.matchPattern);
-      if (p.length < 4) continue;
-      // Word-boundary containment only: "swiggy" matches "swiggy instamart",
-      // but "ola" can never match "gola snacks".
-      final boundary = RegExp('\\b${RegExp.escape(p)}\\b');
-      if (boundary.hasMatch(needle)) return r;
-    }
-    return null;
-  }
-
-  Future<void> upsertMerchantRule({
-    required String pattern,
-    required int categoryId,
-    int? accountId,
-  }) async {
-    final existing = await (select(
-      merchantRules,
-    )..where((r) => r.matchPattern.equals(pattern))).getSingleOrNull();
-
-    if (existing == null) {
-      await into(merchantRules).insert(
-        MerchantRulesCompanion.insert(
-          matchPattern: pattern,
-          categoryId: categoryId,
-          accountId: Value(accountId),
-          hitCount: const Value(1),
-        ),
-      );
-    } else {
-      await (update(
-        merchantRules,
-      )..where((r) => r.id.equals(existing.id))).write(
-        MerchantRulesCompanion(
-          categoryId: Value(categoryId),
-          accountId: Value(accountId),
-          hitCount: Value(existing.hitCount + 1),
-        ),
-      );
-    }
-  }
-
-  Stream<List<MerchantRuleRow>> watchMerchantRules() =>
-      select(merchantRules).watch();
-
-  Future<void> deleteMerchantRule(int id) =>
-      (delete(merchantRules)..where((r) => r.id.equals(id))).go();
-
-  Stream<List<SenderRuleRow>> watchSenderRules() => select(senderRules).watch();
-
-  Future<void> setSenderRuleEnabled(int id, bool enabled) =>
-      (update(senderRules)..where((r) => r.id.equals(id))).write(
-        SenderRulesCompanion(enabled: Value(enabled)),
-      );
-
   // ── Settings for capture ─────────────────────────────────────────────────
 
-  Future<void> setMessageCaptureEnabled(bool enabled) => update(
-    settings,
-  ).write(SettingsCompanion(messageCaptureEnabled: Value(enabled)));
 
   Future<void> setAutoApprove(bool enabled) =>
       update(settings).write(SettingsCompanion(autoApprove: Value(enabled)));
@@ -4695,8 +4292,6 @@ class AppDatabase extends _$AppDatabase {
     return candidates.isEmpty ? null : candidates.first.id;
   }
 
-  Future<void> setLastMessageScanAt(DateTime at) =>
-      update(settings).write(SettingsCompanion(lastMessageScanAt: Value(at)));
 
   /// [name] must be a `ThemePreset.name`. Unknown values are tolerated on read,
   /// so a bad write degrades to the default rather than bricking the app.
@@ -6066,8 +5661,6 @@ class AppDatabase extends _$AppDatabase {
       'persons': (await select(persons).get()).map(m).toList(),
       'personEntries': (await select(personEntries).get()).map(m).toList(),
       'reminders': (await select(reminders).get()).map(m).toList(),
-      'merchantRules': (await select(merchantRules).get()).map(m).toList(),
-      'senderRules': (await select(senderRules).get()).map(m).toList(),
       'tags': (await select(tags).get()).map(m).toList(),
       'transactionTags': (await select(transactionTags).get()).map(m).toList(),
       'recurringRuleTags': (await select(
@@ -6091,7 +5684,6 @@ class AppDatabase extends _$AppDatabase {
       // `importAll` clears these two, so they MUST be exported. Otherwise
       // restoring the app's own backup silently wipes un-reviewed capture cards
       // and resets the budget-alert dedupe (re-firing alerts already seen).
-      'pendingTxns': (await select(pendingTxns).get()).map(m).toList(),
       'budgetAlerts': (await select(budgetAlerts).get()).map(m).toList(),
       'settings': (await select(settings).get()).map(m).toList(),
     };
@@ -6160,8 +5752,6 @@ class AppDatabase extends _$AppDatabase {
       // Children first, or the deletes violate the foreign keys.
       // `person_entries` -> `transactions` -> `persons`, so that exact order.
       await delete(budgetAlerts).go();
-      await delete(pendingTxns).go();
-      await delete(merchantRules).go();
       await delete(reminders).go();
       await delete(personEntries).go();
       await delete(budgets).go();
@@ -6184,7 +5774,6 @@ class AppDatabase extends _$AppDatabase {
       await delete(persons).go();
       await delete(categories).go();
       await delete(accounts).go();
-      await delete(senderRules).go();
       // References tags and tagGroups, so it goes before both deletes.
       await delete(tagGroupTags).go();
       await delete(tagGroups).go();
@@ -6271,11 +5860,8 @@ class AppDatabase extends _$AppDatabase {
       await load(allocations, 'allocations');
       await load(personEntries, 'personEntries');
       await load(reminders, 'reminders');
-      await load(merchantRules, 'merchantRules');
-      await load(senderRules, 'senderRules');
       // These reference accounts/transactions/categories, so they come last.
       // An older backup simply has no rows for them — `rows()` yields nothing.
-      await load(pendingTxns, 'pendingTxns');
       await load(budgetAlerts, 'budgetAlerts');
       // Both reference transactions/categories/tags, so they come after all
       // three are loaded.

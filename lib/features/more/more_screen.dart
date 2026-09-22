@@ -145,12 +145,7 @@ class MoreScreen extends ConsumerWidget {
           route: '/more/tags',
           subtitle: 'Label transactions, cutting across category',
         ),
-        _Item(
-          Icons.sms_outlined,
-          'Message Capture',
-          route: '/more/capture',
-          subtitle: 'Auto-capture — coming soon',
-        ),
+
         _Item(
           Icons.settings_outlined,
           'Settings',

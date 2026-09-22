@@ -66,23 +66,7 @@ enum ReminderRepeat { none, weekly, monthly, yearly }
 
 enum ReminderStatus { open, done, snoozed, dismissed }
 
-/// Where a captured message came from. The parser is source-agnostic so a
-/// notification listener can be swapped in without touching anything else.
-/// `shared`: the user picked XPENC from the Android Share sheet on a
-/// message from their SMS/bank app — see `share_intake.dart` and GitHub
-/// #26. `screenshot`: the user shared a payment-app screenshot (PhonePe/
-/// GPay/Paytm "payment successful" screen) instead of text — the image is
-/// OCR'd on-device and the recognised text is parsed by `ScreenshotParser`
-/// exactly like a shared SMS is by `MessageParser` — see
-/// `parser/screenshot_parser.dart` and GitHub #25. A `textEnum` column, so
-/// adding either of these needed no migration.
-enum MessageSourceKind { sms, notification, shared, screenshot }
 
-/// Banking sense: `debit` = money out, `credit` = money in.
-/// (Distinct from a *credit card*, which is an account.)
-enum TxDirection { debit, credit }
-
-enum PendingStatus { pending, autoFilled, approved, dismissed, duplicate }
 
 /// Which budget alert already fired this period, so we never spam.
 enum AlertLevel { threshold, overspent }
@@ -779,11 +763,7 @@ class Settings extends Table {
   /// shows, so the user always sees what was filled in for them.
   BoolColumn get autoApprove => boolean().withDefault(const Constant(false))();
 
-  BoolColumn get messageCaptureEnabled =>
-      boolean().withDefault(const Constant(false))();
 
-  /// Watermark for the "read SMS since last open" scan.
-  DateTimeColumn get lastMessageScanAt => dateTime().nullable()();
 
   BoolColumn get notificationsEnabled =>
       boolean().withDefault(const Constant(true))();
@@ -1148,122 +1128,7 @@ class Settings extends Table {
   Set<Column> get primaryKey => {id};
 }
 
-// ─── Message auto-capture (§8) ──────────────────────────────────────────────
 
-/// A parsed bank message waiting for the user. Nothing here has touched the
-/// ledger yet unless [status] is `autoFilled` or `approved`.
-@DataClassName('PendingTxnRow')
-class PendingTxns extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get source => textEnum<MessageSourceKind>()();
-  TextColumn get rawBody => text()();
-  TextColumn get sender => text()();
-  DateTimeColumn get receivedAt => dateTime()();
-
-  IntColumn get parsedAmount =>
-      integer().map(const MoneyConverter()).nullable()();
-  TextColumn get parsedDirection => textEnum<TxDirection>().nullable()();
-
-  /// Last 4 digits lifted from `A/c XX1234` / `Card ending 5678`.
-  TextColumn get parsedAccountHint => text().nullable()();
-  TextColumn get parsedMerchant => text().nullable()();
-  TextColumn get parsedRef => text().nullable()();
-  IntColumn get parsedBalance =>
-      integer().map(const MoneyConverter()).nullable()();
-
-  /// 0–100. Low confidence never auto-posts.
-  IntColumn get confidence => integer().withDefault(const Constant(0))();
-
-  TextColumn get status =>
-      textEnum<PendingStatus>().withDefault(const Constant('pending'))();
-
-  IntColumn get matchedAccountId =>
-      integer().nullable().references(Accounts, #id)();
-  IntColumn get appliedRuleId => integer().nullable()();
-  IntColumn get createdTransactionId =>
-      integer().nullable().references(Transactions, #id)();
-
-  /// Stable identity for dedupe: sender + body + received-minute.
-  TextColumn get dedupeKey => text()();
-
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-
-  /// Set only for [MessageSourceKind.screenshot] cards: the shared image,
-  /// already copied into the app's own `documents/receipts/` directory (see
-  /// `ReceiptStorage.storeExternalFile`) — the same directory a manually
-  /// attached receipt lives in, so an approved card needs no second copy:
-  /// this path is used directly as the new transaction's `imagePath`.
-  TextColumn get sourceImagePath => text().nullable()();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {dedupeKey},
-  ];
-}
-
-/// A user-submitted example of what XPENC's on-device OCR read from a
-/// payment-app screenshot, and whether the parser's extraction was right —
-/// see Settings > Message Capture > OCR corrections and
-/// docs/superpowers/specs/2026-08-14-ocr-corrections-design.md. Never holds
-/// the source image, only text. [sentAt] is set once the user has fired a
-/// send intent (mailto/share sheet) for this row — the app itself never
-/// transmits it.
-@DataClassName('OcrCorrectionRow')
-class OcrCorrections extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  DateTimeColumn get createdAt => dateTime().withDefault(currentDateAndTime)();
-  TextColumn get appLabel => text()();
-  TextColumn get country => text().nullable()();
-  TextColumn get rawOcrText => text()();
-  BoolColumn get wasCorrect => boolean()();
-
-  /// What `ScreenshotParser` actually produced — kept as display strings,
-  /// not typed `Money`/`TxDirection`, since these are export-only and never
-  /// feed back into the ledger.
-  TextColumn get extractedAmount => text().nullable()();
-  TextColumn get extractedDirection => text().nullable()();
-  TextColumn get extractedPayee => text().nullable()();
-  TextColumn get extractedReference => text().nullable()();
-
-  /// Only set when [wasCorrect] is false.
-  TextColumn get correctedAmount => text().nullable()();
-  TextColumn get correctedDirection => text().nullable()();
-  TextColumn get correctedPayee => text().nullable()();
-  TextColumn get correctedReference => text().nullable()();
-
-  DateTimeColumn get sentAt => dateTime().nullable()();
-}
-
-/// Learned "this merchant means this category" mappings. Auto-Approve only ever
-/// fires from one of these — never from a fresh guess.
-@DataClassName('MerchantRuleRow')
-class MerchantRules extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get matchPattern => text()();
-  IntColumn get categoryId => integer().references(Categories, #id)();
-  IntColumn get accountId => integer().nullable().references(Accounts, #id)();
-  BoolColumn get autoApprove => boolean().withDefault(const Constant(true))();
-  IntColumn get hitCount => integer().withDefault(const Constant(0))();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {matchPattern},
-  ];
-}
-
-/// Which SMS sender IDs belong to which bank.
-@DataClassName('SenderRuleRow')
-class SenderRules extends Table {
-  IntColumn get id => integer().autoIncrement()();
-  TextColumn get senderPattern => text()();
-  TextColumn get bankName => text()();
-  BoolColumn get enabled => boolean().withDefault(const Constant(true))();
-
-  @override
-  List<Set<Column>> get uniqueKeys => [
-    {senderPattern},
-  ];
-}
 
 /// A short, user-defined label (e.g. "Work trip", "Tax deductible") that can
 /// be pinned to any number of transactions, cutting across category and
