@@ -9,8 +9,6 @@ import 'hold_menu_geometry.dart';
 import '../../features/add_transaction/add_transaction_choice_sheet.dart';
 import '../../features/persons/persons_screen.dart' show showAddPersonDialog;
 import '../../features/transactions/transaction_filters.dart';
-import '../branding/app_info.dart';
-import '../branding/brand_mark.dart';
 
 /// `Dashboard · slotLeft · ➕ · slotRight · More`
 ///
@@ -505,7 +503,7 @@ class _TopBar extends ConsumerWidget implements PreferredSizeWidget {
         title: Text(
           _titles[currentIndex],
           style: const TextStyle(
-            fontSize: 28,
+            fontSize: 22,
             fontWeight: FontWeight.bold,
           ),
         ),
@@ -534,14 +532,7 @@ class _TopBar extends ConsumerWidget implements PreferredSizeWidget {
   List<Widget> _tabActions(BuildContext context, WidgetRef ref, int index) {
     switch (index) {
       case 0: // Dashboard
-        return [
-          _TonalIconButton(
-            tooltip: 'About ${AppInfo.name}',
-            icon: const BrandMark(size: 22),
-            onPressed: () => context.push('/more/about'),
-          ),
-          const SizedBox(width: 4),
-        ];
+        return const [];
       case 1: // Transactions
         return const [_TransactionsBarActions(), SizedBox(width: 4)];
       case 2: // Persons

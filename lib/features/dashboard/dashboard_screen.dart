@@ -17,7 +17,7 @@ import '../../data/tables.dart';
 import '../budgets/ready_to_assign_screen.dart';
 
 import '../reports/chart_widgets.dart';
-import 'sparkline.dart';
+
 
 /// The graphical glance view: net worth, this-month income vs expense,
 /// account balances, budgets, spend breakdown and recent activity.
@@ -196,14 +196,12 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
     // has no error state of its own; it is simply not ready until they are.
     final netWorth = metric == null ? ref.watch(netWorthProvider) : null;
 
-    List<double> trendValues = const [];
     var delta = const Money.zero();
     Money? headline;
 
     switch (metric) {
       case null:
         final trend = ref.watch(netWorthTrendProvider(_months));
-        trendValues = [for (final p in trend) p.value.paise.toDouble()];
         delta = trend.length >= 2
             ? trend.last.value - trend[trend.length - 2].value
             : const Money.zero();
@@ -215,7 +213,6 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
           for (final m in monthly)
             metric == _MoneyMetric.income ? m.income : m.expense,
         ];
-        trendValues = [for (final v in values) v.paise.toDouble()];
         delta = values.length >= 2
             ? values.last - values[values.length - 2]
             : const Money.zero();
@@ -230,7 +227,6 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
         final trend = ref.watch(
           accountTypeBalanceTrendProvider((type: type, months: _months)),
         );
-        trendValues = [for (final p in trend) p.value.paise.toDouble()];
         delta = trend.length >= 2
             ? trend.last.value - trend[trend.length - 2].value
             : const Money.zero();
@@ -261,7 +257,6 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
         clipBehavior: Clip.antiAlias,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(_cardRadius),
-          side: BorderSide(color: tint.withValues(alpha: 0.30)),
         ),
         child: DecoratedBox(
           // Bold's signature wash is fixed — a deep, moody gradient that
@@ -339,15 +334,7 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
                   ],
                 ),
               ),
-              if (trendReady && trendValues.length >= 2)
-                Sparkline(
-                  values: trendValues,
-                  color: tint,
-                  background:
-                      theme.cardTheme.color ?? theme.colorScheme.surface,
-                )
-              else
-                const SizedBox(height: 22),
+              const SizedBox(height: 22),
               _MoneyMetricTabs(
                 selected: _metric,
                 onSelect: (m) =>
@@ -425,11 +412,6 @@ class _MoneyMetricChip extends StatelessWidget {
         decoration: BoxDecoration(
           color: active ? color.withValues(alpha: 0.14) : Colors.transparent,
           borderRadius: BorderRadius.circular(999),
-          border: Border.all(
-            color: active
-                ? color.withValues(alpha: 0.40)
-                : theme.colorScheme.outline,
-          ),
         ),
         child: Text(
           label,
@@ -485,7 +467,6 @@ class _DeltaChip extends StatelessWidget {
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.12),
         borderRadius: BorderRadius.circular(999),
-        border: Border.all(color: color.withValues(alpha: 0.28)),
       ),
       child: Row(
         mainAxisSize: MainAxisSize.min,
@@ -551,7 +532,14 @@ class _ThisMonthCardState extends ConsumerState<_ThisMonthCard> {
           child: Column(
             children: [
               Row(
+                mainAxisAlignment: MainAxisAlignment.spaceBetween,
                 children: [
+                  IconButton(
+                    visualDensity: VisualDensity.compact,
+                    onPressed: () => _step(-1),
+                    icon: const Icon(Icons.chevron_left),
+                    tooltip: 'Previous month',
+                  ),
                   Expanded(
                     child: AnimatedSwitcher(
                       duration: const Duration(milliseconds: 260),
@@ -564,7 +552,7 @@ class _ThisMonthCardState extends ConsumerState<_ThisMonthCard> {
                       ),
                       child: Column(
                         key: ValueKey(month),
-                        crossAxisAlignment: CrossAxisAlignment.start,
+                        crossAxisAlignment: CrossAxisAlignment.center,
                         mainAxisSize: MainAxisSize.min,
                         children: [
                           Text(
@@ -586,12 +574,6 @@ class _ThisMonthCardState extends ConsumerState<_ThisMonthCard> {
                         ],
                       ),
                     ),
-                  ),
-                  IconButton(
-                    visualDensity: VisualDensity.compact,
-                    onPressed: () => _step(-1),
-                    icon: const Icon(Icons.chevron_left),
-                    tooltip: 'Previous month',
                   ),
                   IconButton(
                     visualDensity: VisualDensity.compact,
@@ -667,7 +649,6 @@ class _MetricTile extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
       decoration: BoxDecoration(
         color: color.withValues(alpha: 0.07),
-        border: Border.all(color: color.withValues(alpha: 0.24)),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -795,9 +776,8 @@ class _AccountsStrip extends ConsumerWidget {
                 ),
               ),
               SizedBox(
-                // 16px padding top+bottom + icon(38) + name + balance needs
-                // ~116. 112 overflowed by 4px; leave headroom for text scale.
-                height: 126,
+                // Height for horizontal row layout: 16px padding * 2 + ~48px content
+                height: 96,
                 child: ListView.separated(
                   scrollDirection: Axis.horizontal,
                   padding: const EdgeInsets.symmetric(horizontal: 20),
@@ -828,8 +808,10 @@ class _AccountCard extends StatelessWidget {
     final theme = Theme.of(context);
     final color = Color(account.colorValue);
 
+    final cardWidth = MediaQuery.of(context).size.width - 52; // leaves a 12px peek for the next card
+
     return SizedBox(
-      width: 168,
+      width: cardWidth,
       child: PressScale(
         child: Card(
           margin: EdgeInsets.zero,
@@ -837,20 +819,17 @@ class _AccountCard extends StatelessWidget {
           // reads as a row of *different* accounts at a glance.
           shape: RoundedRectangleBorder(
             borderRadius: BorderRadius.circular(_cardRadius),
-            side: BorderSide(color: color.withValues(alpha: 0.32)),
           ),
           child: InkWell(
             borderRadius: BorderRadius.circular(_cardRadius),
             onTap: () => context.push('/account/${account.id}'),
             child: Padding(
-              padding: const EdgeInsets.all(16),
-              child: Column(
-                crossAxisAlignment: CrossAxisAlignment.start,
-                mainAxisAlignment: MainAxisAlignment.spaceBetween,
+              padding: const EdgeInsets.symmetric(horizontal: 20, vertical: 16),
+              child: Row(
                 children: [
                   Container(
-                    width: 38,
-                    height: 38,
+                    width: 46,
+                    height: 46,
                     alignment: Alignment.center,
                     decoration: BoxDecoration(
                       shape: BoxShape.circle,
@@ -858,13 +837,12 @@ class _AccountCard extends StatelessWidget {
                     ),
                     child: Icon(
                       AppIcons.resolve(account.iconKey),
-                      size: 20,
+                      size: 24,
                       color: color,
                     ),
                   ),
-                  // Flexible + scale-down: a long balance (₹49,680.00) or a large
-                  // system font must shrink, never wrap and overflow the card.
-                  Flexible(
+                  const SizedBox(width: 16),
+                  Expanded(
                     child: Column(
                       mainAxisSize: MainAxisSize.min,
                       crossAxisAlignment: CrossAxisAlignment.start,
@@ -873,8 +851,9 @@ class _AccountCard extends StatelessWidget {
                           account.name,
                           maxLines: 1,
                           overflow: TextOverflow.ellipsis,
-                          style: theme.textTheme.bodyMedium?.copyWith(
+                          style: theme.textTheme.titleMedium?.copyWith(
                             color: theme.colorScheme.onSurfaceVariant,
+                            fontWeight: FontWeight.w600,
                           ),
                         ),
                         const SizedBox(height: 2),
@@ -883,7 +862,7 @@ class _AccountCard extends StatelessWidget {
                           alignment: Alignment.centerLeft,
                           child: BalanceText(
                             account.currentBalance,
-                            style: theme.textTheme.titleMedium?.copyWith(
+                            style: theme.textTheme.headlineSmall?.copyWith(
                               fontWeight: FontWeight.w700,
                             ),
                           ),
@@ -1307,7 +1286,27 @@ class _BudgetsSection extends ConsumerWidget {
   Widget build(BuildContext context, WidgetRef ref) {
     final progress = ref.watch(budgetProgressProvider);
 
-    if (progress.isEmpty) return const _SetBudgetCard();
+    if (progress.isEmpty) {
+      return Padding(
+        padding: const EdgeInsets.only(bottom: 24),
+        child: Column(
+          crossAxisAlignment: CrossAxisAlignment.start,
+          children: [
+            _SectionHeader(
+              'Budgets',
+              trailing: TextButton(
+                onPressed: () => context.push('/more/budgets'),
+                child: const Text('Manage'),
+              ),
+            ),
+            const Padding(
+              padding: EdgeInsets.symmetric(horizontal: 20),
+              child: _SetBudgetCard(),
+            ),
+          ],
+        ),
+      );
+    }
 
     final rtaOn = ref.watch(rtaEnabledProvider);
 
@@ -1369,10 +1368,8 @@ class _SetBudgetCard extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: _sectionPad,
-      child: PressScale(
-        child: Card(
+    return PressScale(
+      child: Card(
           margin: EdgeInsets.zero,
           child: InkWell(
             borderRadius: BorderRadius.circular(_cardRadius),
@@ -1424,7 +1421,6 @@ class _SetBudgetCard extends StatelessWidget {
                 ],
               ),
             ),
-          ),
         ),
       ),
     );
@@ -1522,7 +1518,27 @@ class _RecentSection extends ConsumerWidget {
 
     return recent.when(
       data: (list) {
-        if (list.isEmpty) return const _EmptyState();
+        if (list.isEmpty) {
+          return Padding(
+            padding: const EdgeInsets.only(bottom: 24),
+            child: Column(
+              crossAxisAlignment: CrossAxisAlignment.start,
+              children: [
+                _SectionHeader(
+                  'Recent',
+                  trailing: TextButton(
+                    onPressed: () => context.push('/transactions'),
+                    child: const Text('See all'),
+                  ),
+                ),
+                const Padding(
+                  padding: EdgeInsets.symmetric(horizontal: 20),
+                  child: _EmptyState(),
+                ),
+              ],
+            ),
+          );
+        }
         final top = list.take(5).toList();
 
         return Padding(
@@ -1710,9 +1726,7 @@ class _EmptyState extends StatelessWidget {
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
-    return Padding(
-      padding: _sectionPad,
-      child: Card(
+    return Card(
         child: Padding(
           padding: const EdgeInsets.symmetric(horizontal: 24, vertical: 32),
           child: Column(
@@ -1754,7 +1768,6 @@ class _EmptyState extends StatelessWidget {
               ),
             ],
           ),
-        ),
       ),
     );
   }

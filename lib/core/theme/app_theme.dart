@@ -91,7 +91,6 @@ class AppTheme {
         margin: EdgeInsets.zero,
         shape: RoundedRectangleBorder(
           borderRadius: BorderRadius.circular(cardRadius),
-          side: BorderSide(color: p.border),
         ),
       ),
       dividerTheme: DividerThemeData(color: p.border, thickness: 1, space: 1),
