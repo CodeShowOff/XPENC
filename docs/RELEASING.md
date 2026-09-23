@@ -89,3 +89,30 @@ Framework: Other, no build command) so pushes to `master` deploy automatically.
 
 If the production domain ever changes, update the `og:url` / `og:image` meta
 tags in `website/index.html` and the GitHub repo homepage.
+
+## F-Droid Releases
+
+F-Droid is configured to **automatically update** whenever you push a new `vX.Y.Z` tag to GitHub. 
+
+For 99% of app updates, you **only** need to push to GitHub (as described in "Step by step" above). F-Droid runs a scheduled check, sees your new tag, bumps the metadata file automatically, and builds the new version. It even dynamically fetches the Flutter version you specify in your GitHub `.github/workflows/release.yml` so you never have to manually update it for F-Droid.
+
+### When do you need to manually update F-Droid?
+
+You only need to manually push to the `fdroiddata` repository (specifically your `add-xpenc` Merge Request) if you change:
+1. **App Metadata**: You want to update the app description, add/change screenshots, or change the app icon or feature graphic.
+2. **Build Process**: You added a new native dependency that requires a special F-Droid build flag, or you need to run custom `sed` scripts to remove non-free libraries.
+
+**How to update F-Droid metadata manually (e.g. for new screenshots):**
+1. Clone or open your `fdroiddata` fork.
+2. Place graphics in `metadata/com.codeshowoff.xpenc/en-US/`:
+   - Screenshots go in `phoneScreenshots/`
+   - Icon goes in as `icon.png`
+   - Feature graphic goes in as `featureGraphic.png`
+3. Update `metadata/com.codeshowoff.xpenc.yml` if you want to force a specific version to build right now.
+4. Commit and push to your branch:
+   ```sh
+   git add metadata/
+   git commit -m "Update XPENC screenshots and icon"
+   git push origin add-xpenc
+   ```
+5. F-Droid's CI will automatically run on your Merge Request and reviewers will merge it.
