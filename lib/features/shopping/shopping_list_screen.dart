@@ -75,29 +75,30 @@ class ShoppingListScreen extends ConsumerWidget {
         ),
         data: (items) {
           if (items.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+              child: SizedBox(
+                width: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [
-                  Icon(
-                    Icons.checklist_outlined,
-                    size: 48,
-                    color: theme.colorScheme.onSurfaceVariant,
-                  ),
-                  const SizedBox(height: 16),
-                  Text(
-                    'Nothing here yet — tap + to add something.',
-                    textAlign: TextAlign.center,
-                    style: theme.textTheme.bodyMedium?.copyWith(
+                    Icon(
+                      Icons.checklist_outlined,
+                      size: 48,
                       color: theme.colorScheme.onSurfaceVariant,
                     ),
-                  ),
-                ],
+                    const SizedBox(height: 16),
+                    Text(
+                      'Nothing here yet — tap + to add something.',
+                      textAlign: TextAlign.center,
+                      style: theme.textTheme.bodyMedium?.copyWith(
+                        color: theme.colorScheme.onSurfaceVariant,
+                      ),
+                    ),
+                  ],
+                ),
               ),
-            ),
-          );
+            );
           }
 
           final unchecked = items.where((i) => !i.isChecked).toList();
@@ -278,7 +279,7 @@ class _ShoppingItemTile extends ConsumerWidget {
               ref.read(dbProvider).setShoppingItemChecked(item.id, v ?? false),
         ),
         title: Text(
-          item.name,
+          item.quantity?.isNotEmpty == true ? '${item.quantity} ${item.name}' : item.name,
           maxLines: 1,
           overflow: TextOverflow.ellipsis,
           style: theme.textTheme.bodyLarge?.copyWith(
@@ -331,6 +332,7 @@ class _ItemEditorSheet extends ConsumerStatefulWidget {
 
 class _ItemEditorSheetState extends ConsumerState<_ItemEditorSheet> {
   late final TextEditingController _nameController;
+  late final TextEditingController _quantityController;
   late final TextEditingController _amountController;
   bool _submitting = false;
 
@@ -340,6 +342,7 @@ class _ItemEditorSheetState extends ConsumerState<_ItemEditorSheet> {
   void initState() {
     super.initState();
     _nameController = TextEditingController(text: widget.existing?.name ?? '');
+    _quantityController = TextEditingController(text: widget.existing?.quantity ?? '');
     _amountController = TextEditingController(
       text: widget.existing?.estimatedAmount == null
           ? ''
@@ -350,6 +353,7 @@ class _ItemEditorSheetState extends ConsumerState<_ItemEditorSheet> {
   @override
   void dispose() {
     _nameController.dispose();
+    _quantityController.dispose();
     _amountController.dispose();
     super.dispose();
   }
@@ -366,6 +370,7 @@ class _ItemEditorSheetState extends ConsumerState<_ItemEditorSheet> {
       _showError('Give the item a name.');
       return;
     }
+    final quantity = _quantityController.text.trim();
     final amount = Money.tryParse(_amountController.text);
 
     setState(() => _submitting = true);
@@ -375,12 +380,14 @@ class _ItemEditorSheetState extends ConsumerState<_ItemEditorSheet> {
         await db.updateShoppingItem(
           id: widget.existing!.id,
           name: name,
+          quantity: quantity.isEmpty ? null : quantity,
           estimatedAmount: amount,
         );
       } else {
         await db.addShoppingItem(
           listId: widget.listId,
           name: name,
+          quantity: quantity.isEmpty ? null : quantity,
           estimatedAmount: amount,
         );
       }
@@ -427,6 +434,16 @@ class _ItemEditorSheetState extends ConsumerState<_ItemEditorSheet> {
                 labelText: 'Item',
                 hintText: 'e.g. Milk, New shoes',
                 counterText: '',
+              ),
+              onSubmitted: (_) => _save(),
+            ),
+            const SizedBox(height: 16),
+            TextField(
+              controller: _quantityController,
+              textCapitalization: TextCapitalization.sentences,
+              decoration: const InputDecoration(
+                labelText: 'Quantity (optional)',
+                hintText: 'e.g. 2, 1.5 kg, 2 boxes',
               ),
               onSubmitted: (_) => _save(),
             ),

@@ -18,7 +18,7 @@ class AppColors {
   /// Money moved to or from a person. It leaves (or enters) your account, but
   /// lending is not spending and being repaid is not earning — so it wears
   /// neither green nor red.
-  static const person = Color(0xFFA855F7);
+  static const person = Colors.white;
 
   /// The default accent, used when no theme is loaded yet. Live code should
   /// read the accent off the theme (`colorScheme.secondary`) so it follows the

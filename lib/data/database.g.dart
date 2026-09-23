@@ -15706,6 +15706,15 @@ class $ShoppingItemsTable extends ShoppingItems
     type: DriftSqlType.string,
     requiredDuringInsert: true,
   );
+  static const VerificationMeta _quantityMeta = const VerificationMeta('quantity');
+  @override
+  late final GeneratedColumn<String> quantity = GeneratedColumn<String>(
+    'quantity',
+    aliasedName,
+    true,
+    type: DriftSqlType.string,
+    requiredDuringInsert: false,
+  );
   @override
   late final GeneratedColumnWithTypeConverter<Money?, int> estimatedAmount =
       GeneratedColumn<int>(
@@ -15747,6 +15756,7 @@ class $ShoppingItemsTable extends ShoppingItems
     id,
     listId,
     name,
+    quantity,
     estimatedAmount,
     isChecked,
     createdAt,
@@ -15779,6 +15789,12 @@ class $ShoppingItemsTable extends ShoppingItems
       );
     } else if (isInserting) {
       context.missing(_nameMeta);
+    }
+    if (data.containsKey('quantity')) {
+      context.handle(
+        _quantityMeta,
+        quantity.isAcceptableOrUnknown(data['quantity']!, _quantityMeta),
+      );
     }
     if (data.containsKey('is_checked')) {
       context.handle(
@@ -15813,6 +15829,10 @@ class $ShoppingItemsTable extends ShoppingItems
         DriftSqlType.string,
         data['${effectivePrefix}name'],
       )!,
+      quantity: attachedDatabase.typeMapping.read(
+        DriftSqlType.string,
+        data['${effectivePrefix}quantity'],
+      ),
       estimatedAmount: $ShoppingItemsTable.$converterestimatedAmountn.fromSql(
         attachedDatabase.typeMapping.read(
           DriftSqlType.int,
@@ -15851,6 +15871,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
   /// (see AppDatabase.addShoppingItem). Never actually null in practice.
   final int? listId;
   final String name;
+  final String? quantity;
   final Money? estimatedAmount;
   final bool isChecked;
   final DateTime createdAt;
@@ -15858,6 +15879,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
     required this.id,
     this.listId,
     required this.name,
+    this.quantity,
     this.estimatedAmount,
     required this.isChecked,
     required this.createdAt,
@@ -15870,6 +15892,9 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
       map['list_id'] = Variable<int>(listId);
     }
     map['name'] = Variable<String>(name);
+    if (!nullToAbsent || quantity != null) {
+      map['quantity'] = Variable<String>(quantity);
+    }
     if (!nullToAbsent || estimatedAmount != null) {
       map['estimated_amount'] = Variable<int>(
         $ShoppingItemsTable.$converterestimatedAmountn.toSql(estimatedAmount),
@@ -15887,6 +15912,9 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
           ? const Value.absent()
           : Value(listId),
       name: Value(name),
+      quantity: quantity == null && nullToAbsent
+          ? const Value.absent()
+          : Value(quantity),
       estimatedAmount: estimatedAmount == null && nullToAbsent
           ? const Value.absent()
           : Value(estimatedAmount),
@@ -15904,6 +15932,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
       id: serializer.fromJson<int>(json['id']),
       listId: serializer.fromJson<int?>(json['listId']),
       name: serializer.fromJson<String>(json['name']),
+      quantity: serializer.fromJson<String?>(json['quantity']),
       estimatedAmount: serializer.fromJson<Money?>(json['estimatedAmount']),
       isChecked: serializer.fromJson<bool>(json['isChecked']),
       createdAt: serializer.fromJson<DateTime>(json['createdAt']),
@@ -15916,6 +15945,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
       'id': serializer.toJson<int>(id),
       'listId': serializer.toJson<int?>(listId),
       'name': serializer.toJson<String>(name),
+      'quantity': serializer.toJson<String?>(quantity),
       'estimatedAmount': serializer.toJson<Money?>(estimatedAmount),
       'isChecked': serializer.toJson<bool>(isChecked),
       'createdAt': serializer.toJson<DateTime>(createdAt),
@@ -15926,6 +15956,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
     int? id,
     Value<int?> listId = const Value.absent(),
     String? name,
+    Value<String?> quantity = const Value.absent(),
     Value<Money?> estimatedAmount = const Value.absent(),
     bool? isChecked,
     DateTime? createdAt,
@@ -15933,6 +15964,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
     id: id ?? this.id,
     listId: listId.present ? listId.value : this.listId,
     name: name ?? this.name,
+    quantity: quantity.present ? quantity.value : this.quantity,
     estimatedAmount: estimatedAmount.present
         ? estimatedAmount.value
         : this.estimatedAmount,
@@ -15944,6 +15976,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
       id: data.id.present ? data.id.value : this.id,
       listId: data.listId.present ? data.listId.value : this.listId,
       name: data.name.present ? data.name.value : this.name,
+      quantity: data.quantity.present ? data.quantity.value : this.quantity,
       estimatedAmount: data.estimatedAmount.present
           ? data.estimatedAmount.value
           : this.estimatedAmount,
@@ -15958,6 +15991,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
           ..write('id: $id, ')
           ..write('listId: $listId, ')
           ..write('name: $name, ')
+          ..write('quantity: $quantity, ')
           ..write('estimatedAmount: $estimatedAmount, ')
           ..write('isChecked: $isChecked, ')
           ..write('createdAt: $createdAt')
@@ -15967,7 +16001,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
 
   @override
   int get hashCode =>
-      Object.hash(id, listId, name, estimatedAmount, isChecked, createdAt);
+      Object.hash(id, listId, name, quantity, estimatedAmount, isChecked, createdAt);
   @override
   bool operator ==(Object other) =>
       identical(this, other) ||
@@ -15975,6 +16009,7 @@ class ShoppingItemRow extends DataClass implements Insertable<ShoppingItemRow> {
           other.id == this.id &&
           other.listId == this.listId &&
           other.name == this.name &&
+          other.quantity == this.quantity &&
           other.estimatedAmount == this.estimatedAmount &&
           other.isChecked == this.isChecked &&
           other.createdAt == this.createdAt);
@@ -15984,6 +16019,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
   final Value<int> id;
   final Value<int?> listId;
   final Value<String> name;
+  final Value<String?> quantity;
   final Value<Money?> estimatedAmount;
   final Value<bool> isChecked;
   final Value<DateTime> createdAt;
@@ -15991,6 +16027,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
     this.id = const Value.absent(),
     this.listId = const Value.absent(),
     this.name = const Value.absent(),
+    this.quantity = const Value.absent(),
     this.estimatedAmount = const Value.absent(),
     this.isChecked = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -15999,6 +16036,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
     this.id = const Value.absent(),
     this.listId = const Value.absent(),
     required String name,
+    this.quantity = const Value.absent(),
     this.estimatedAmount = const Value.absent(),
     this.isChecked = const Value.absent(),
     this.createdAt = const Value.absent(),
@@ -16007,6 +16045,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
     Expression<int>? id,
     Expression<int>? listId,
     Expression<String>? name,
+    Expression<String>? quantity,
     Expression<int>? estimatedAmount,
     Expression<bool>? isChecked,
     Expression<DateTime>? createdAt,
@@ -16015,6 +16054,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
       if (id != null) 'id': id,
       if (listId != null) 'list_id': listId,
       if (name != null) 'name': name,
+      if (quantity != null) 'quantity': quantity,
       if (estimatedAmount != null) 'estimated_amount': estimatedAmount,
       if (isChecked != null) 'is_checked': isChecked,
       if (createdAt != null) 'created_at': createdAt,
@@ -16025,6 +16065,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
     Value<int>? id,
     Value<int?>? listId,
     Value<String>? name,
+    Value<String?>? quantity,
     Value<Money?>? estimatedAmount,
     Value<bool>? isChecked,
     Value<DateTime>? createdAt,
@@ -16033,6 +16074,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
       id: id ?? this.id,
       listId: listId ?? this.listId,
       name: name ?? this.name,
+      quantity: quantity ?? this.quantity,
       estimatedAmount: estimatedAmount ?? this.estimatedAmount,
       isChecked: isChecked ?? this.isChecked,
       createdAt: createdAt ?? this.createdAt,
@@ -16050,6 +16092,9 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
     }
     if (name.present) {
       map['name'] = Variable<String>(name.value);
+    }
+    if (quantity.present) {
+      map['quantity'] = Variable<String>(quantity.value);
     }
     if (estimatedAmount.present) {
       map['estimated_amount'] = Variable<int>(
@@ -16073,6 +16118,7 @@ class ShoppingItemsCompanion extends UpdateCompanion<ShoppingItemRow> {
           ..write('id: $id, ')
           ..write('listId: $listId, ')
           ..write('name: $name, ')
+          ..write('quantity: $quantity, ')
           ..write('estimatedAmount: $estimatedAmount, ')
           ..write('isChecked: $isChecked, ')
           ..write('createdAt: $createdAt')

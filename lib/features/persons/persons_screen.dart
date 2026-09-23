@@ -261,7 +261,7 @@ class _TotalsHeader extends StatelessWidget {
                   "You'll get",
                   totals.youGet,
                   AppColors.income,
-                  Icons.south_west_rounded,
+                  Icons.south_rounded,
                 ),
               ),
               Container(width: 1, height: 46, color: theme.colorScheme.outline),
@@ -271,7 +271,7 @@ class _TotalsHeader extends StatelessWidget {
                   "You'll pay",
                   totals.youPay,
                   AppColors.expense,
-                  Icons.north_east_rounded,
+                  Icons.north_rounded,
                 ),
               ),
             ],
@@ -293,8 +293,6 @@ class _TotalsHeader extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 14, color: color),
-            const SizedBox(width: 6),
             Flexible(
               child: Text(
                 label,
@@ -305,6 +303,8 @@ class _TotalsHeader extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 6),
+            Icon(icon, size: 14, color: color),
           ],
         ),
         const SizedBox(height: 6),

@@ -365,7 +365,7 @@ class _Hero extends StatelessWidget {
       TxType.income => ('Income', Icons.arrow_downward_rounded),
       TxType.expense => ('Expense', Icons.arrow_upward_rounded),
       TxType.transfer => ('Transfer', Icons.swap_horiz_rounded),
-      TxType.personOut => ('Gave to person', Icons.call_made_rounded),
+      TxType.personOut => ('Sent to person', Icons.call_made_rounded),
       TxType.personIn => ('Received from person', Icons.call_received_rounded),
     };
 
@@ -759,7 +759,7 @@ String _typeLabel(TxType type) => switch (type) {
   TxType.income => 'Income',
   TxType.expense => 'Expense',
   TxType.transfer => 'Transfer',
-  TxType.personOut => 'Gave to person',
+  TxType.personOut => 'Sent to person',
   TxType.personIn => 'Received from person',
 };
 

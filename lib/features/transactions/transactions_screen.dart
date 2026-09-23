@@ -639,7 +639,7 @@ class _SummaryStrip extends StatelessWidget {
               _cellDivider(context),
               Expanded(
                 child: _SummaryCell(
-                  icon: Icons.south_west_rounded,
+                  icon: Icons.south_rounded,
                   label: MoneyFormat.compact(income),
                   sublabel: 'in',
                   color: AppColors.income,
@@ -648,7 +648,7 @@ class _SummaryStrip extends StatelessWidget {
               _cellDivider(context),
               Expanded(
                 child: _SummaryCell(
-                  icon: Icons.north_east_rounded,
+                  icon: Icons.north_rounded,
                   label: MoneyFormat.compact(expense),
                   sublabel: 'out',
                   color: AppColors.expense,
@@ -1570,8 +1570,8 @@ class _FilterChips extends StatelessWidget {
 
   static const List<(String, IconData, _QuickFilter)> _options = [
     ('All', Icons.all_inclusive_rounded, _QuickFilter.all),
-    ('Income', Icons.south_west_rounded, _QuickFilter.income),
-    ('Expense', Icons.north_east_rounded, _QuickFilter.expense),
+    ('Income', Icons.south_rounded, _QuickFilter.income),
+    ('Expense', Icons.north_rounded, _QuickFilter.expense),
     ('Transfer', Icons.swap_horiz_rounded, _QuickFilter.transfer),
     ('Linked', Icons.link_rounded, _QuickFilter.linked),
   ];

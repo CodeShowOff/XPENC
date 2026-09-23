@@ -69,7 +69,7 @@ class _ArchivedRuleTile extends ConsumerWidget {
                   AccountType.loan
               ? Icons.account_balance_rounded
               : Icons.savings_rounded)
-        : (isExpense ? Icons.north_east_rounded : Icons.south_west_rounded);
+        : (isExpense ? Icons.north_rounded : Icons.south_rounded);
 
     return ListTile(
       contentPadding: const EdgeInsets.symmetric(horizontal: 16, vertical: 4),

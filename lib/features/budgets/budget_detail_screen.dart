@@ -308,7 +308,7 @@ class _TxRow extends StatelessWidget {
       leading: CircleAvatar(
         backgroundColor: AppColors.expense.withValues(alpha: 0.14),
         foregroundColor: AppColors.expense,
-        child: const Icon(Icons.north_east_rounded, size: 20),
+        child: const Icon(Icons.north_rounded, size: 20),
       ),
       title: Text(
         title,

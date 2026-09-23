@@ -83,7 +83,7 @@ class ShoppingListsScreen extends ConsumerWidget {
             );
           }
           return ListView.builder(
-            padding: const EdgeInsets.fromLTRB(20, 12, 20, 96),
+            padding: const EdgeInsets.fromLTRB(20, 0, 20, 96),
             itemCount: lists.length,
             itemBuilder: (context, i) => _ShoppingListTile(
               list: lists[i],
@@ -117,27 +117,14 @@ class _ShoppingListTile extends ConsumerWidget {
     return Card(
       margin: const EdgeInsets.only(bottom: 12),
       clipBehavior: Clip.antiAlias,
+      color: color.withValues(alpha: 0.25),
+      elevation: 0,
       child: InkWell(
         onTap: () => context.push('/more/shopping/${list.id}'),
         child: Padding(
-          padding: const EdgeInsets.fromLTRB(16, 14, 8, 14),
+          padding: const EdgeInsets.fromLTRB(20, 22, 8, 22),
           child: Row(
             children: [
-              Container(
-                width: 44,
-                height: 44,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  color: color.withValues(alpha: 0.15),
-                  shape: BoxShape.circle,
-                ),
-                child: Icon(
-                  Icons.shopping_basket_outlined,
-                  color: color,
-                  size: 22,
-                ),
-              ),
-              const SizedBox(width: 14),
               Expanded(
                 child: Column(
                   crossAxisAlignment: CrossAxisAlignment.start,
@@ -146,7 +133,9 @@ class _ShoppingListTile extends ConsumerWidget {
                       list.name,
                       maxLines: 1,
                       overflow: TextOverflow.ellipsis,
-                      style: theme.textTheme.titleMedium,
+                      style: theme.textTheme.titleLarge?.copyWith(
+                        fontWeight: FontWeight.w600,
+                      ),
                     ),
                     const SizedBox(height: 2),
                     Text(

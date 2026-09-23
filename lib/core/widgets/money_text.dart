@@ -100,21 +100,21 @@ Color colorForTxType(TxType type) => switch (type) {
 ///
 /// A person movement is drawn as a *person*, not as an arrow: the counterparty
 /// is the fact that matters, and the direction is already carried by the row's
-/// sign and by its title ("Gave to Asha"). The old `call_made`/`call_received`
+/// sign and by its title ("Sent to Asha"). The old `call_made`/`call_received`
 /// icons were telephone glyphs and said nothing about money at all.
 IconData iconForTxType(TxType type) => switch (type) {
   TxType.transfer => Icons.swap_horiz_rounded,
   TxType.personOut => Icons.person_outline_rounded,
   TxType.personIn => Icons.person_outline_rounded,
-  TxType.income => Icons.south_west_rounded,
-  TxType.expense => Icons.north_east_rounded,
+  TxType.income => Icons.south_rounded,
+  TxType.expense => Icons.north_rounded,
 };
 
 /// What to call a transaction that has no category. [personName] names the
-/// counterparty when there is one — "Gave to Asha" beats "Gave to person".
+/// counterparty when there is one — "Sent to Asha" beats "Sent to person".
 String labelForTxType(TxType type, {String? personName}) => switch (type) {
   TxType.transfer => 'Transfer',
-  TxType.personOut => 'Gave to ${personName ?? 'person'}',
+  TxType.personOut => 'Sent to ${personName ?? 'person'}',
   TxType.personIn => 'Received from ${personName ?? 'person'}',
   TxType.income => 'Income',
   TxType.expense => 'Expense',

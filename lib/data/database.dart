@@ -192,7 +192,7 @@ class AppDatabase extends _$AppDatabase {
       );
 
   @override
-  int get schemaVersion => 72;
+  int get schemaVersion => 73;
 
   @override
   MigrationStrategy get migration => MigrationStrategy(
@@ -653,6 +653,9 @@ class AppDatabase extends _$AppDatabase {
           await customStatement('DROP TABLE sender_rules');
         } catch (_) {}
       }
+      if (from < 73) {
+        await _addColumnIfMissing(m, shoppingItems, shoppingItems.quantity as GeneratedColumn<Object>);
+      }
     },
     beforeOpen: (details) async {
       await customStatement('PRAGMA foreign_keys = ON');
@@ -861,7 +864,7 @@ class AppDatabase extends _$AppDatabase {
           note: Value(
             e.note ??
                 (e.direction == PersonDirection.theyOwe
-                    ? 'Gave to ${person?.name ?? 'person'}'
+                    ? 'Sent to ${person?.name ?? 'person'}'
                     : 'Received from ${person?.name ?? 'person'}'),
           ),
         ),
@@ -2296,11 +2299,13 @@ class AppDatabase extends _$AppDatabase {
   Future<int> addShoppingItem({
     required int listId,
     required String name,
+    String? quantity,
     Money? estimatedAmount,
   }) => into(shoppingItems).insert(
     ShoppingItemsCompanion.insert(
       listId: Value(listId),
       name: name,
+      quantity: Value(quantity),
       estimatedAmount: Value(estimatedAmount),
     ),
   );
@@ -2308,10 +2313,12 @@ class AppDatabase extends _$AppDatabase {
   Future<void> updateShoppingItem({
     required int id,
     required String name,
+    String? quantity,
     Money? estimatedAmount,
   }) => (update(shoppingItems)..where((i) => i.id.equals(id))).write(
     ShoppingItemsCompanion(
       name: Value(name),
+      quantity: Value(quantity),
       estimatedAmount: Value(estimatedAmount),
     ),
   );
@@ -2395,7 +2402,7 @@ class AppDatabase extends _$AppDatabase {
           note:
               note ??
               (direction == PersonDirection.theyOwe
-                  ? 'Gave to ${person?.name ?? 'person'}'
+                  ? 'Sent to ${person?.name ?? 'person'}'
                   : 'Received from ${person?.name ?? 'person'}'),
         );
       }
@@ -2499,7 +2506,7 @@ class AppDatabase extends _$AppDatabase {
           note:
               note ??
               (direction == PersonDirection.theyOwe
-                  ? 'Gave to ${person?.name ?? 'person'}'
+                  ? 'Sent to ${person?.name ?? 'person'}'
                   : 'Received from ${person?.name ?? 'person'}'),
         );
       }

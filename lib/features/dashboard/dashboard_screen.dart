@@ -234,21 +234,7 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
             : null;
     }
 
-    // For net worth, colour *means* direction, the same as it does on a
-    // ledger row. For a picked metric, colour names the metric instead —
-    // Expense stays red whether spending rose or fell this month.
-    final tint = switch (metric) {
-      null =>
-        !trendReady || delta.isZero
-            ? theme.colorScheme.onSurfaceVariant
-            : delta.isNegative
-            ? AppColors.expense
-            : AppColors.income,
-      _MoneyMetric.income => AppColors.income,
-      _MoneyMetric.expense => AppColors.expense,
-      _MoneyMetric.savings => AppColors.transfer,
-      _MoneyMetric.loan => AppColors.person,
-    };
+
 
     return Padding(
       padding: _sectionPad,
@@ -302,7 +288,7 @@ class _NetWorthCardState extends ConsumerState<_NetWorthCard> {
                     // beside a label has nowhere to go on a 360dp screen.
                     if (trendReady && !delta.isZero) ...[
                       const SizedBox(height: 10),
-                      _DeltaChip(delta: delta, color: tint),
+                      _DeltaChip(delta: delta),
                     ],
                   ],
                 ),
@@ -428,45 +414,37 @@ class _BoldGradientText extends StatelessWidget {
 
 /// `▲ +₹2.4K this month` — how far the hero figure moved since last month end.
 class _DeltaChip extends StatelessWidget {
-  const _DeltaChip({required this.delta, required this.color});
+  const _DeltaChip({required this.delta});
 
   final Money delta;
-  final Color color;
 
   @override
   Widget build(BuildContext context) {
     final theme = Theme.of(context);
     final up = !delta.isNegative;
 
-    return Container(
-      padding: const EdgeInsets.fromLTRB(8, 5, 10, 5),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.12),
-        borderRadius: BorderRadius.circular(999),
-      ),
-      child: Row(
-        mainAxisSize: MainAxisSize.min,
-        children: [
-          Icon(
-            up ? Icons.trending_up_rounded : Icons.trending_down_rounded,
-            size: 15,
-            color: color,
-          ),
-          const SizedBox(width: 5),
-          Flexible(
-            child: Text(
-              '${up ? '+' : '-'}${MoneyFormat.compact(delta.abs)} this month',
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: color,
-                fontWeight: FontWeight.w700,
-                fontFeatures: kTabularFigures,
-              ),
+    return Row(
+      mainAxisSize: MainAxisSize.min,
+      children: [
+        Icon(
+          up ? Icons.trending_up_rounded : Icons.trending_down_rounded,
+          size: 15,
+          color: theme.colorScheme.onSurface,
+        ),
+        const SizedBox(width: 5),
+        Flexible(
+          child: Text(
+            '${up ? '+' : '-'}${MoneyFormat.compact(delta.abs)} this month',
+            maxLines: 1,
+            overflow: TextOverflow.ellipsis,
+            style: theme.textTheme.labelSmall?.copyWith(
+              color: theme.colorScheme.onSurface,
+              fontWeight: FontWeight.w700,
+              fontFeatures: kTabularFigures,
             ),
           ),
-        ],
-      ),
+        ),
+      ],
     );
   }
 }
@@ -572,16 +550,16 @@ class _ThisMonthCardState extends ConsumerState<_ThisMonthCard> {
                               label: 'Income',
                               amount: t.income,
                               color: AppColors.income,
-                              icon: Icons.south_west_rounded,
+                              icon: Icons.south_rounded,
                             ),
                           ),
-                          const SizedBox(width: 12),
+                          Container(width: 1, height: 46, color: theme.colorScheme.outline),
                           Expanded(
                             child: _MetricTile(
                               label: 'Expense',
                               amount: t.expense,
                               color: AppColors.expense,
-                              icon: Icons.north_east_rounded,
+                              icon: Icons.north_rounded,
                             ),
                           ),
                         ],
@@ -623,17 +601,11 @@ class _MetricTile extends StatelessWidget {
     final theme = Theme.of(context);
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
-      decoration: BoxDecoration(
-        color: color.withValues(alpha: color == AppColors.income ? 0.12 : 0.09),
-        borderRadius: BorderRadius.circular(16),
-      ),
       child: Column(
-        crossAxisAlignment: CrossAxisAlignment.start,
         children: [
           Row(
+            mainAxisAlignment: MainAxisAlignment.center,
             children: [
-              Icon(icon, size: 15, color: color),
-              const SizedBox(width: 6),
               // "Expense" plus its icon is within a pixel of the tile's width
               // at the default text size. It has to be allowed to give.
               Flexible(
@@ -646,13 +618,15 @@ class _MetricTile extends StatelessWidget {
                   ),
                 ),
               ),
+              const SizedBox(width: 6),
+              Icon(icon, size: 14, color: color),
             ],
           ),
           const SizedBox(height: 6),
           // A large system font or a lakh-sized figure must shrink, not wrap.
           FittedBox(
             fit: BoxFit.scaleDown,
-            alignment: Alignment.centerLeft,
+            alignment: Alignment.center,
             child: MoneyText(
               amount,
               color: color,
@@ -707,6 +681,7 @@ class _NetLine extends StatelessWidget {
         : AppColors.income;
 
     return Row(
+      mainAxisAlignment: MainAxisAlignment.center,
       children: [
         Text(
           net.isNegative ? 'Overspent by' : 'Saved',
@@ -714,7 +689,7 @@ class _NetLine extends StatelessWidget {
             color: theme.colorScheme.onSurfaceVariant,
           ),
         ),
-        const Spacer(),
+        const SizedBox(width: 6),
         MoneyText(
           net.abs,
           color: color,
@@ -985,7 +960,7 @@ class _DuesOwesRow extends StatelessWidget {
               "You'll get",
               youGet,
               AppColors.income,
-              Icons.south_west_rounded,
+              Icons.south_rounded,
             ),
           ),
           Container(width: 1, height: 40, color: theme.colorScheme.outline),
@@ -995,7 +970,7 @@ class _DuesOwesRow extends StatelessWidget {
               "You'll pay",
               youPay,
               AppColors.expense,
-              Icons.north_east_rounded,
+              Icons.north_rounded,
             ),
           ),
         ],
@@ -1015,8 +990,6 @@ class _DuesOwesRow extends StatelessWidget {
         Row(
           mainAxisAlignment: MainAxisAlignment.center,
           children: [
-            Icon(icon, size: 13, color: color),
-            const SizedBox(width: 6),
             Flexible(
               child: Text(
                 label,
@@ -1027,6 +1000,8 @@ class _DuesOwesRow extends StatelessWidget {
                 ),
               ),
             ),
+            const SizedBox(width: 6),
+            Icon(icon, size: 13, color: color),
           ],
         ),
         const SizedBox(height: 6),
@@ -1060,8 +1035,8 @@ class _PersonDuesTile extends StatelessWidget {
     final color = owesYou ? AppColors.income : AppColors.expense;
     final status = owesYou ? 'Owes you' : 'You owe';
     final statusIcon = owesYou
-        ? Icons.south_west_rounded
-        : Icons.north_east_rounded;
+        ? Icons.south_rounded
+        : Icons.north_rounded;
 
     return ListTile(
       onTap: () => context.push('/person/${person.id}'),

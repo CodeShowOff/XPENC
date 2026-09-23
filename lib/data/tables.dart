@@ -1245,6 +1245,7 @@ class ShoppingItems extends Table {
   IntColumn get listId => integer().nullable().references(ShoppingLists, #id)();
 
   TextColumn get name => text().withLength(min: 1, max: 120)();
+  TextColumn get quantity => text().nullable()();
   IntColumn get estimatedAmount =>
       integer().map(const MoneyConverter()).nullable()();
   BoolColumn get isChecked => boolean().withDefault(const Constant(false))();

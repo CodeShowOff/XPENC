@@ -20,7 +20,7 @@ void main() {
     test('names the counterparty when there is one', () {
       expect(
         labelForTxType(TxType.personOut, personName: 'Asha'),
-        'Gave to Asha',
+        'Sent to Asha',
       );
       expect(
         labelForTxType(TxType.personIn, personName: 'Asha'),
@@ -29,7 +29,7 @@ void main() {
     });
 
     test('degrades to a generic noun rather than an empty gap', () {
-      expect(labelForTxType(TxType.personOut), 'Gave to person');
+      expect(labelForTxType(TxType.personOut), 'Sent to person');
       expect(labelForTxType(TxType.personIn), 'Received from person');
     });
 
@@ -97,7 +97,7 @@ void main() {
       await pump(tester, const TransactionsScreen());
       expect(tester.takeException(), isNull);
 
-      expect(find.text('Gave to Asha'), findsOneWidget);
+      expect(find.text('Sent to Asha'), findsOneWidget);
       expect(find.text('Uncategorised'), findsNothing);
       await unmount(tester);
     });
@@ -114,7 +114,7 @@ void main() {
       await tester.pump();
       expect(tester.takeException(), isNull);
 
-      expect(find.text('Gave to Asha'), findsOneWidget);
+      expect(find.text('Sent to Asha'), findsOneWidget);
       expect(find.text('Uncategorised'), findsNothing);
       await unmount(tester);
     });

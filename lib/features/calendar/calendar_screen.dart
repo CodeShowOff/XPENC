@@ -726,7 +726,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
           backgroundColor: accent.withValues(alpha: 0.15),
           foregroundColor: accent,
           child: Icon(
-            isExpense ? Icons.north_east_rounded : Icons.south_west_rounded,
+            isExpense ? Icons.north_rounded : Icons.south_rounded,
           ),
         ),
         title: Text(r.name, maxLines: 1, overflow: TextOverflow.ellipsis),
