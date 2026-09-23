@@ -19,8 +19,8 @@ class AppInfo {
       'on this device — nothing is ever uploaded.';
 
   // ── Version ────────────────────────────────────────────────────────────────
-  static const version = '1.0.1';
-  static const buildNumber = 13;
+  static const version = '1.0.2';
+  static const buildNumber = 14;
 
   /// `1.0.0` — the string a bug report should quote.
   static const versionLabel = version;
