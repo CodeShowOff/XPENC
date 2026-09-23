@@ -24,6 +24,15 @@ everything lives in a local SQLite database on your phone. Nothing is ever uploa
 
 
 
+<br><br>
+
+<p align="center">
+  <img src="branding/screenshots/screenshot1.jpeg" width="24%">
+  <img src="branding/screenshots/screenshot2.jpeg" width="24%">
+  <img src="branding/screenshots/screenshot3.jpeg" width="24%">
+  <img src="branding/screenshots/screenshot4.jpeg" width="24%">
+</p>
+
 </div>
 
 ---
