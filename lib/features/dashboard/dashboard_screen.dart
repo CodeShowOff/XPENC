@@ -15,6 +15,7 @@ import '../../data/database.dart';
 import '../../data/providers.dart';
 import '../../data/tables.dart';
 import '../budgets/ready_to_assign_screen.dart';
+import '../persons/person_avatar.dart';
 
 import '../reports/chart_widgets.dart';
 
@@ -623,7 +624,7 @@ class _MetricTile extends StatelessWidget {
     return Container(
       padding: const EdgeInsets.fromLTRB(14, 12, 14, 14),
       decoration: BoxDecoration(
-        color: color.withValues(alpha: 0.07),
+        color: color.withValues(alpha: color == AppColors.income ? 0.12 : 0.09),
         borderRadius: BorderRadius.circular(16),
       ),
       child: Column(
@@ -1631,21 +1632,28 @@ class _TxRow extends StatelessWidget {
           constraints: const BoxConstraints(minHeight: 58),
           child: Row(
             children: [
-              Container(
-                width: 46,
-                height: 46,
-                alignment: Alignment.center,
-                decoration: BoxDecoration(
-                  shape: BoxShape.circle,
-                  color: iconColor.withValues(alpha: 0.14),
+              if (tx.type.isPersonMovement && person != null)
+                PersonAvatar(
+                  name: person!.name,
+                  photoPath: person!.photoPath,
+                  radius: 23,
+                )
+              else
+                Container(
+                  width: 46,
+                  height: 46,
+                  alignment: Alignment.center,
+                  decoration: BoxDecoration(
+                    shape: BoxShape.circle,
+                    color: iconColor.withValues(alpha: 0.14),
+                  ),
+                  child: transactionRowIcon(
+                    customIcon: tx.customIcon,
+                    fallback: icon,
+                    size: 24,
+                    color: iconColor,
+                  ),
                 ),
-                child: transactionRowIcon(
-                  customIcon: tx.customIcon,
-                  fallback: icon,
-                  size: 24,
-                  color: iconColor,
-                ),
-              ),
               const SizedBox(width: 16),
               Expanded(
                 child: Column(

@@ -190,11 +190,11 @@ class _BalanceHero extends StatelessWidget {
     if (balance.isPositive) {
       shown = balance;
       color = AppColors.income;
-      label = 'You gave';
+      label = 'Owes you';
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
-      label = 'They gave';
+      label = 'You owe';
     } else {
       shown = balance;
       color = theme.colorScheme.onSurfaceVariant;
@@ -266,27 +266,31 @@ class _ActionButtons extends ConsumerWidget {
           Row(
             children: [
               Expanded(
-                child: FilledButton.tonal(
-                  style: FilledButton.styleFrom(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    foregroundColor: AppColors.expense,
+                    side: const BorderSide(color: AppColors.expense),
                   ),
                   onPressed: () => _showEntrySheet(
                     context,
                     personId,
                     PersonDirection.theyOwe,
                   ),
-                  child: const Text('You gave'),
+                  child: const Text('Sent'),
                 ),
               ),
               const SizedBox(width: 12),
               Expanded(
-                child: FilledButton.tonal(
-                  style: FilledButton.styleFrom(
+                child: OutlinedButton(
+                  style: OutlinedButton.styleFrom(
                     padding: const EdgeInsets.symmetric(vertical: 14),
+                    foregroundColor: AppColors.income,
+                    side: const BorderSide(color: AppColors.income),
                   ),
                   onPressed: () =>
                       _showEntrySheet(context, personId, PersonDirection.iOwe),
-                  child: const Text('They gave'),
+                  child: const Text('Received'),
                 ),
               ),
             ],
@@ -781,8 +785,8 @@ class _EntrySheetState extends ConsumerState<_EntrySheet> {
                   : widget.isRepayment
                   ? 'Saved as income'
                   : _theyOwe
-                  ? 'Saved — you gave'
-                  : 'Saved — they gave',
+                  ? 'Saved — they owe you'
+                  : 'Saved — you owe them',
             ),
           ),
         );
@@ -856,8 +860,8 @@ class _EntrySheetState extends ConsumerState<_EntrySheet> {
                     : widget.isRepayment
                     ? 'Mark as repaid'
                     : _theyOwe
-                    ? 'You gave'
-                    : 'They gave',
+                    ? 'They owe you'
+                    : 'You owe them',
                 style: theme.textTheme.titleLarge?.copyWith(
                   fontWeight: FontWeight.w700,
                   color: accent,
@@ -967,7 +971,7 @@ class _EntrySheetState extends ConsumerState<_EntrySheet> {
               const SizedBox(height: 8),
               Text(
                 _accountId == null
-                    ? 'No money will move. This only records who gave whom.'
+                    ? 'No money will move. This only records who owes whom.'
                     : widget.isRepayment
                     ? 'This amount enters that account and posts as '
                           'income under the category below.'

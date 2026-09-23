@@ -57,9 +57,10 @@ class ShoppingListsScreen extends ConsumerWidget {
         ),
         data: (lists) {
           if (lists.isEmpty) {
-            return Center(
-              child: Padding(
-                padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+            return Padding(
+              padding: const EdgeInsets.fromLTRB(32, 48, 32, 24),
+              child: SizedBox(
+                width: double.infinity,
                 child: Column(
                   mainAxisSize: MainAxisSize.min,
                   children: [

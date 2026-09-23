@@ -2380,7 +2380,7 @@ class AppDatabase extends _$AppDatabase {
         final asRepaymentIncome =
             categoryId != null && direction == PersonDirection.iOwe;
         txId = await addTransaction(
-          // theyOwe -> you gave money away. iOwe -> money came to you, either
+          // theyOwe -> they owe you money. iOwe -> money came to you, either
           // as a fresh loan or (marked) a repayment counted as income.
           type: asRepaymentIncome
               ? TxType.income

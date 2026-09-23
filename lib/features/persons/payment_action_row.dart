@@ -108,8 +108,6 @@ class PersonPaymentRow extends StatelessWidget {
                 fontWeight: FontWeight.w700,
               ),
             ),
-            const SizedBox(width: 8),
-            const _BetaBadge(),
           ],
         ),
         const SizedBox(height: 8),
@@ -166,26 +164,3 @@ class _MissingHint extends StatelessWidget {
   }
 }
 
-class _BetaBadge extends StatelessWidget {
-  const _BetaBadge();
-
-  @override
-  Widget build(BuildContext context) {
-    final cs = Theme.of(context).colorScheme;
-    return Container(
-      padding: const EdgeInsets.symmetric(horizontal: 6, vertical: 2),
-      decoration: BoxDecoration(
-        color: cs.tertiaryContainer,
-        borderRadius: BorderRadius.circular(6),
-      ),
-      child: Text(
-        'BETA',
-        style: Theme.of(context).textTheme.labelSmall?.copyWith(
-          color: cs.onTertiaryContainer,
-          fontWeight: FontWeight.w700,
-          letterSpacing: 0.5,
-        ),
-      ),
-    );
-  }
-}

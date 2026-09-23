@@ -335,22 +335,18 @@ class _PersonTile extends ConsumerWidget {
     final Money shown;
     final Color color;
     final String status;
-    final IconData statusIcon;
     if (balance.isPositive) {
       shown = balance;
       color = AppColors.income;
-      status = 'You gave';
-      statusIcon = Icons.north_east_rounded;
+      status = 'Owes you';
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
-      status = 'They gave';
-      statusIcon = Icons.south_west_rounded;
+      status = 'You owe';
     } else {
       shown = balance;
       color = theme.colorScheme.onSurfaceVariant;
       status = 'Settled';
-      statusIcon = Icons.check_circle_outline_rounded;
     }
 
     return ListTile(
@@ -362,19 +358,11 @@ class _PersonTile extends ConsumerWidget {
         overflow: TextOverflow.ellipsis,
         style: theme.textTheme.bodyLarge?.copyWith(fontWeight: FontWeight.w500),
       ),
-      subtitle: Row(
-        children: [
-          Icon(statusIcon, size: 13, color: color),
-          const SizedBox(width: 5),
-          Flexible(
-            child: Text(
-              status,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.bodySmall?.copyWith(color: color),
-            ),
-          ),
-        ],
+      subtitle: Text(
+        status,
+        maxLines: 1,
+        overflow: TextOverflow.ellipsis,
+        style: theme.textTheme.bodySmall?.copyWith(color: color),
       ),
       // A lakh-sized balance must shrink, not shove the name off the row.
       trailing: ConstrainedBox(
@@ -623,11 +611,11 @@ class _GroupTile extends ConsumerWidget {
     if (balance.isPositive) {
       shown = balance;
       color = AppColors.income;
-      status = 'You gave';
+      status = 'Owes you';
     } else if (balance.isNegative) {
       shown = balance.abs;
       color = AppColors.expense;
-      status = 'They gave';
+      status = 'You owe';
     } else {
       shown = balance;
       color = theme.colorScheme.onSurfaceVariant;

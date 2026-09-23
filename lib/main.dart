@@ -6,22 +6,19 @@ import 'app.dart';
 import 'data/database.dart';
 import 'data/providers.dart';
 
+import 'package:shared_preferences/shared_preferences.dart';
+
 void main() async {
   WidgetsFlutterBinding.ensureInitialized();
   
   final db = AppDatabase();
-  SettingRow? initialSettings;
-  try {
-    initialSettings = await db.getSettings();
-  } catch (_) {
-    // databaseReadyProvider will surface this error later.
-  }
+  final prefs = await SharedPreferences.getInstance();
 
   runApp(
     ProviderScope(
       overrides: [
         dbProvider.overrideWithValue(db),
-        initialSettingsProvider.overrideWithValue(initialSettings),
+        sharedPrefsProvider.overrideWithValue(prefs),
       ],
       child: const XpencApp(),
     ),

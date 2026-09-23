@@ -15,6 +15,7 @@ import '../../data/currency_conversion.dart';
 import '../../data/database.dart';
 import '../../data/providers.dart';
 import '../../data/tables.dart';
+import '../persons/person_avatar.dart';
 import 'transaction_filters.dart';
 
 /// All transactions, grouped day-wise (newest first) with a per-day net total.
@@ -733,38 +734,44 @@ class _DayHeader extends StatelessWidget {
       padding: const EdgeInsets.fromLTRB(24, 20, 24, 8),
       child: Row(
         children: [
-          Icon(_icon, size: 15, color: cs.onSurfaceVariant),
-          const SizedBox(width: 8),
-          Flexible(
-            child: Text(
-              _label,
-              maxLines: 1,
-              overflow: TextOverflow.ellipsis,
-              style: theme.textTheme.titleSmall?.copyWith(
-                fontWeight: FontWeight.w700,
-                color: cs.onSurface,
-              ),
+          Expanded(
+            child: Row(
+              children: [
+                Icon(_icon, size: 15, color: cs.onSurfaceVariant),
+                const SizedBox(width: 8),
+                Flexible(
+                  child: Text(
+                    _label,
+                    maxLines: 1,
+                    overflow: TextOverflow.ellipsis,
+                    style: theme.textTheme.titleSmall?.copyWith(
+                      fontWeight: FontWeight.w700,
+                      color: cs.onSurface,
+                    ),
+                  ),
+                ),
+                const SizedBox(width: 8),
+                Container(
+                  padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
+                  decoration: BoxDecoration(
+                    color: cs.surfaceContainerHighest,
+                    borderRadius: BorderRadius.circular(999),
+                  ),
+                  child: Text(
+                    '$count',
+                    style: theme.textTheme.labelSmall?.copyWith(
+                      color: cs.onSurfaceVariant,
+                      fontWeight: FontWeight.w700,
+                      fontFeatures: kTabularFigures,
+                    ),
+                  ),
+                ),
+              ],
             ),
           ),
           const SizedBox(width: 8),
-          Container(
-            padding: const EdgeInsets.symmetric(horizontal: 7, vertical: 2),
-            decoration: BoxDecoration(
-              color: cs.surfaceContainerHighest,
-              borderRadius: BorderRadius.circular(999),
-            ),
-            child: Text(
-              '$count',
-              style: theme.textTheme.labelSmall?.copyWith(
-                color: cs.onSurfaceVariant,
-                fontWeight: FontWeight.w700,
-                fontFeatures: kTabularFigures,
-              ),
-            ),
-          ),
-          const Spacer(),
-          const SizedBox(width: 8),
-          Flexible(
+          ConstrainedBox(
+            constraints: const BoxConstraints(maxWidth: 128),
             child: FittedBox(
               fit: BoxFit.scaleDown,
               alignment: Alignment.centerRight,
@@ -1052,24 +1059,31 @@ class _TxCard extends StatelessWidget {
                 onCreateTemplate,
               ),
               child: Padding(
-                padding: const EdgeInsets.fromLTRB(14, 12, 14, 12),
+                padding: const EdgeInsets.fromLTRB(14, 22, 14, 22),
                 child: Row(
                   children: [
-                    Container(
-                      width: 42,
-                      height: 42,
-                      alignment: Alignment.center,
-                      decoration: BoxDecoration(
-                        color: iconColor.withValues(alpha: 0.14),
-                        borderRadius: BorderRadius.circular(14),
+                    if (isPerson && person != null)
+                      PersonAvatar(
+                        name: person!.name,
+                        photoPath: person!.photoPath,
+                        radius: 21,
+                      )
+                    else
+                      Container(
+                        width: 42,
+                        height: 42,
+                        alignment: Alignment.center,
+                        decoration: BoxDecoration(
+                          color: iconColor.withValues(alpha: 0.14),
+                          borderRadius: BorderRadius.circular(14),
+                        ),
+                        child: transactionRowIcon(
+                          customIcon: tx.customIcon,
+                          fallback: icon,
+                          size: 21,
+                          color: iconColor,
+                        ),
                       ),
-                      child: transactionRowIcon(
-                        customIcon: tx.customIcon,
-                        fallback: icon,
-                        size: 21,
-                        color: iconColor,
-                      ),
-                    ),
                     const SizedBox(width: 12),
                     Expanded(
                       child: Column(

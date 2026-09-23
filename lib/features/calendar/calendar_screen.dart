@@ -225,7 +225,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
         transferDays.add(day);
         continue;
       }
-      if (tx.type == TxType.income) {
+      if (tx.type.addsToAccount) {
         incomeByDay[day] = (incomeByDay[day] ?? const Money.zero()) + tx.amount;
       } else {
         expenseByDay[day] =
@@ -551,7 +551,7 @@ class _CalendarScreenState extends ConsumerState<CalendarScreen> {
     Widget totalTile(String label, Money amount, Color color, IconData icon) {
       return Expanded(
         child: Card(
-          color: color.withValues(alpha: 0.08),
+          color: color.withValues(alpha: color == AppColors.income ? 0.12 : 0.09),
           child: Padding(
             padding: const EdgeInsets.symmetric(horizontal: 14, vertical: 12),
             child: Row(
@@ -929,11 +929,12 @@ class _ReminderSheetState extends ConsumerState<_ReminderSheet> {
             MediaQuery.of(context).viewInsets.bottom +
             20,
       ),
-      child: Column(
-        mainAxisSize: MainAxisSize.min,
-        crossAxisAlignment: CrossAxisAlignment.stretch,
-        children: [
-          Center(
+      child: SingleChildScrollView(
+        child: Column(
+          mainAxisSize: MainAxisSize.min,
+          crossAxisAlignment: CrossAxisAlignment.stretch,
+          children: [
+            Center(
             child: Container(
               width: 40,
               height: 4,
@@ -1049,6 +1050,7 @@ class _ReminderSheetState extends ConsumerState<_ReminderSheet> {
           ),
         ],
       ),
+    ),
     );
   }
 }

@@ -201,6 +201,23 @@ class _XpencAppState extends ConsumerState<XpencApp>
         _onLedgerChanged();
       }
     });
+    
+    // Sync UI configuration to SharedPreferences for fast cold-starts.
+    ref.listen(settingsProvider, (_, next) {
+      final s = next.valueOrNull;
+      if (s != null) {
+        final prefs = ref.read(sharedPrefsProvider);
+        prefs?.setString('themeName', s.themeName);
+        prefs?.setInt('fontScalePercent', s.fontScalePercent);
+        prefs?.setInt('fontWeightDelta', s.fontWeightDelta);
+        if (s.fontFamily != null) {
+          prefs?.setString('fontFamily', s.fontFamily!);
+        } else {
+          prefs?.remove('fontFamily');
+        }
+      }
+    });
+
     // Keeps the home-screen widgets live while the app is open — neither
     // has any other way to learn the ledger (or budgets) changed.
     ref.listen(netWorthProvider, (_, next) {

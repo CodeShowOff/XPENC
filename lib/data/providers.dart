@@ -1,4 +1,5 @@
 import 'package:flutter_riverpod/flutter_riverpod.dart';
+import 'package:shared_preferences/shared_preferences.dart';
 
 import '../core/budget_cycle.dart';
 import '../core/currency.dart';
@@ -698,43 +699,42 @@ final settingsStreamProvider = StreamProvider<SettingRow>(
   (ref) => ref.watch(dbProvider).watchSettings(),
 );
 
-final initialSettingsProvider = Provider<SettingRow?>((ref) => null);
+final sharedPrefsProvider = Provider<SharedPreferences?>((ref) => null);
 
 final settingsProvider = Provider<AsyncValue<SettingRow>>((ref) {
-  final streamValue = ref.watch(settingsStreamProvider);
-  if (streamValue.isLoading && !streamValue.hasValue) {
-    final initial = ref.watch(initialSettingsProvider);
-    if (initial != null) {
-      return AsyncData(initial);
-    }
-  }
-  return streamValue;
+  return ref.watch(settingsStreamProvider);
 });
 
 /// The theme the user picked. Falls back to [ThemePreset.fallback] while the
 /// settings row is loading, and if the database never opens — the app must
 /// still be able to paint its own error screen.
 final themePresetProvider = Provider<ThemePreset>((ref) {
-  final name = ref.watch(settingsProvider).valueOrNull?.themeName;
+  final name = ref.watch(settingsProvider).valueOrNull?.themeName ??
+      ref.watch(sharedPrefsProvider)?.getString('themeName');
   return ThemePreset.fromName(name);
 });
 
 /// Text-size multiplier, as a percentage — 100 is normal. See
 /// `Settings.fontScalePercent`.
 final fontScalePercentProvider = Provider<int>((ref) {
-  return ref.watch(settingsProvider).valueOrNull?.fontScalePercent ?? 100;
+  return ref.watch(settingsProvider).valueOrNull?.fontScalePercent ??
+      ref.watch(sharedPrefsProvider)?.getInt('fontScalePercent') ??
+      100;
 });
 
 /// How much bolder/lighter than the theme's own weight text reads. See
 /// `Settings.fontWeightDelta`.
 final fontWeightDeltaProvider = Provider<int>((ref) {
-  return ref.watch(settingsProvider).valueOrNull?.fontWeightDelta ?? 0;
+  return ref.watch(settingsProvider).valueOrNull?.fontWeightDelta ??
+      ref.watch(sharedPrefsProvider)?.getInt('fontWeightDelta') ??
+      0;
 });
 
 /// The font family the user picked, or [AppFontFamily.system] to keep each
 /// theme's own choice.
 final fontFamilyProvider = Provider<AppFontFamily>((ref) {
-  final name = ref.watch(settingsProvider).valueOrNull?.fontFamily;
+  final name = ref.watch(settingsProvider).valueOrNull?.fontFamily ??
+      ref.watch(sharedPrefsProvider)?.getString('fontFamily');
   return AppFontFamily.fromName(name);
 });
 
