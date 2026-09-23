@@ -61,3 +61,6 @@ issue.md
 # Gradle's own cache under the forked Tesseract package — regenerated on
 # every build, not source.
 packages/flutter_tesseract_ocr_floss/android/.gradle/
+
+# Untrack F-Droid
+fdroiddata
