@@ -322,7 +322,7 @@ void main() {
     await pump(tester, const PersonsScreen());
     expect(tester.takeException(), isNull);
     expect(find.text('Ram'), findsOneWidget);
-    expect(find.text('You gave'), findsOneWidget);
+    expect(find.text('Owes you'), findsOneWidget);
     await unmount(tester);
   });
 }
