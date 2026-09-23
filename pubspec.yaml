@@ -113,6 +113,8 @@ flutter_launcher_icons:
   android: "launcher_icon"
   ios: false
   image_path: "assets/images/appicon.png"
+  adaptive_icon_background: "#000000"
+  adaptive_icon_foreground: "assets/images/appicon_rounded.png"
 
 # For information on the generic Dart part of this file, see the
 # following page: https://dart.dev/tools/pub/pubspec

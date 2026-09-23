@@ -93,7 +93,7 @@ void main() {
       expect(container.read(fontWeightDeltaProvider), 0);
       expect(container.read(fontFamilyProvider), AppFontFamily.system);
 
-      await container.read(settingsProvider.future);
+      await container.read(settingsStreamProvider.future);
       expect(container.read(fontScalePercentProvider), 130);
       expect(container.read(fontWeightDeltaProvider), -1);
       expect(container.read(fontFamilyProvider), AppFontFamily.serif);

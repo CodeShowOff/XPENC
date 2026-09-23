@@ -694,9 +694,22 @@ final ruleTransactionsProvider =
 
 // ── Settings ────────────────────────────────────────────────────────────────
 
-final settingsProvider = StreamProvider<SettingRow>(
+final settingsStreamProvider = StreamProvider<SettingRow>(
   (ref) => ref.watch(dbProvider).watchSettings(),
 );
+
+final initialSettingsProvider = Provider<SettingRow?>((ref) => null);
+
+final settingsProvider = Provider<AsyncValue<SettingRow>>((ref) {
+  final streamValue = ref.watch(settingsStreamProvider);
+  if (streamValue.isLoading && !streamValue.hasValue) {
+    final initial = ref.watch(initialSettingsProvider);
+    if (initial != null) {
+      return AsyncData(initial);
+    }
+  }
+  return streamValue;
+});
 
 /// The theme the user picked. Falls back to [ThemePreset.fallback] while the
 /// settings row is loading, and if the database never opens — the app must

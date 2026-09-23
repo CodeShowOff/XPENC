@@ -161,7 +161,7 @@ void main() {
       // theme rather than null.
       expect(container.read(themePresetProvider), ThemePreset.fallback);
 
-      await container.read(settingsProvider.future);
+      await container.read(settingsStreamProvider.future);
       expect(container.read(themePresetProvider), ThemePreset.midnight);
     });
   });
