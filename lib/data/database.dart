@@ -460,6 +460,7 @@ class AppDatabase extends _$AppDatabase {
         // that doesn't exist on a device migrating from below 55 in the
         // same run — "no such column: foreign_currency_code" (GitHub #112).
         await m.alterTable(
+          // ignore: experimental_member_use
           TableMigration(
             recurringRules,
             newColumns: [
