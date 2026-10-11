@@ -105,3 +105,9 @@ are possible with Flutter but finicky; revisit only if users ask.
   fdroiddata scanner and the app gets dropped.
 - The version scheme in `pubspec.yaml` or the ABI split set changes — the
   `VercodeOperation` lines must change with it.
+
+## Making changes to your fdroiddata MR without heavy cloning
+
+If you need to fix CI errors (such as image EXIF metadata) or update files in your GitLab MR, refer to:
+- [`LIGHTWEIGHT_GITLAB_WORKFLOW.md`](LIGHTWEIGHT_GITLAB_WORKFLOW.md) for how to use shallow single-branch cloning and sparse checkouts without downloading the multi-gigabyte `fdroiddata` history.
+
