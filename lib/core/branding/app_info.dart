@@ -10,7 +10,7 @@
 class AppInfo {
   const AppInfo._();
 
-  static const name = 'XPENC';
+  static const name = 'Xpenc';
   static const tagline = 'Money, tracked honestly.';
 
   /// Shown under the wordmark on the About screen.
