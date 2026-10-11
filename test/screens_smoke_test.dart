@@ -1026,7 +1026,7 @@ void main() {
   ) async {
     await pump(tester, const AboutScreen());
     expect(tester.takeException(), isNull);
-    expect(find.text('XPENC'), findsOneWidget);
+    expect(find.text(AppInfo.name), findsOneWidget);
     expect(find.text('Version ${AppInfo.versionLabel}'), findsOneWidget);
     expect(find.text(AppInfo.developer), findsOneWidget);
     expect(find.text(AppInfo.developerRole), findsOneWidget);
